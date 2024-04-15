@@ -46,3 +46,12 @@
                      (setq gc-cons-percentage 0.1
                            gcmh-high-cons-threshold (* 32 1024 1024)
                            gcmh-idle-delay 30))))
+
+;; Mini-buffer completion
+(use-package vertico
+  :init (vertico-mode 1)
+  :custom (vertico-cycle t "Cyle to top of list"))
+
+;; Save minibuffer history for 'Vertico'
+(use-package savehist
+  :init (savehist-mode 1))
