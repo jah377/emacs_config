@@ -1,0 +1,5 @@
+#+TITLE: Literate Emacs Configuration
+#+AUTHOR: Jonathan A. Harris | Machine Learning Programs
+#+EMAIL: jonathan.harris@mlprograms.com
+#+DATE: Monday, April 15, 2024
+#+PROPERTY: header-args:emacs-lisp :results silent :tangle ../init.el
