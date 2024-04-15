@@ -23,3 +23,54 @@ the file and then call =org-babel-tangle= (~C-c C-v t~). This approach is
 more desirable than the more common method of loading the literate
 file directly in the =init.el= using ~org-babel-load-file~, which requires
 loading =org= before starting Emacs (slow).
+
+* Core
+
+** Early-Init.el
+
+The =early-init.el= file, introduced with Emacs27, is the first file
+that Emacs reads when starting up (before =init.el=). In principal, the
+early initialization file should set-up a few basic things before
+Emacs produces the initial frame, and should not depend on any
+packages. Here, we would like to address the following:
+
++ Garbage Collection :: Garbage collection (GC) ensures that a program
+  does not exceed its memory quote or reach a point that it can no
+  longer function. It also frees up developers from having to manually
+  manage a program's memory which, in turn, reduces the potential for
+  memory-related bugs. We attempt to reduce startup times by changing
+  two variables:
+  - gc-cons-threshold :: Maximize threshold used to trigger GC. This
+    is employed by Doom-Emacs [[[https://github.com/doomemacs/doomemacs/blob/master/early-init.el][doomemacs/early-init.el]]].
+  - gc-cons-percentage :: Trigger GC based on %memory allocation;
+    ignore if less than =gc-cons-threshold=.
+
++ User Interface :: Disable UI elements as soon as possible
+
+#+begin_src emacs-lisp :tangle ../early-init.el
+;;; -*- lexical-binding: t -*-
+
+;; Maximize gc threshold for initialization
+(setq gc-cons-threshold most-positive-fixnum)
+
+;; Trigger GC based on %allocation, ignored if < `gc-cons-threshold`
+(setq gc-cons-percentage 0.6)
+
+;; Disable unwanted UI elements as early as possible
+(menu-bar-mode   -1)
+(scroll-bar-mode -1) ; Visible scrollbar
+(scroll-all-mode -1) ; Synchronized scrolling of buffers
+(tool-bar-mode   -1)
+(tooltip-mode    -1)
+
+(setq-default
+ inhibit-startup-screen t     ; Disable start-up screen
+ inhibit-startup-message t    ; Disable start-up message
+ initial-scratch-message ""   ; Empty initial *scratch* buffer
+ initil-buffer-choice t)      ; Open *scratch* buffer at init
+
+;; Disable audible dinging and use visible bell
+(setq visible-bell t)
+
+;;; early-init.el ends here
+#+end_src
