@@ -3,3 +3,23 @@
 #+EMAIL: jonathan.harris@mlprograms.com
 #+DATE: Monday, April 15, 2024
 #+PROPERTY: header-args:emacs-lisp :results silent :tangle ../init.el
+
+* Introduction
+
+This is my literate Emacs configuration file. My goal is to create my
+own Emacs configuration from scratch and eventually work strictly from
+my local machine. While it is easier to copy-paste things from the MLP
+configuration or online, it seems important to know what each line
+does and why I want it in my config.
+
+This =org= file is used to generate several files responsible for
+configuring Emacs, including:
+
++ early-init.el :: Basic settings before package and UI initialization
++ init.el :: Remaining configuration from our literate file
+
+_This org file is not loaded directly_. To modify my Emacs setup, I edit
+the file and then call =org-babel-tangle= (~C-c C-v t~). This approach is
+more desirable than the more common method of loading the literate
+file directly in the =init.el= using ~org-babel-load-file~, which requires
+loading =org= before starting Emacs (slow).
