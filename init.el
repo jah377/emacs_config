@@ -55,3 +55,14 @@
 ;; Save minibuffer history for 'Vertico'
 (use-package savehist
   :init (savehist-mode 1))
+
+;; Provides additional data to mini-buffer completion
+(use-package marginalia
+  ;; Same reason as 'vertico' and 'savehist'
+  :init (marginalia-mode 1))
+
+;; Add nerd-icons to mini-buffer marginalia
+(use-package nerd-icons-completion
+  :after marginalia
+  :hook (marginalia-mode . nerd-icons-completion-marginalia-setup)
+  :config (nerd-icons-completion-mode))

@@ -188,6 +188,23 @@ away. Note that this forces loading the package.
 
 ** Marginalia
 
+The =marginalia= package provides supplemental information to
+mini-buffer completions. For example, file permissions/size/timestamp
+data when searching for a file using ~M-x find-file~.
+
+#+begin_src emacs-lisp
+;; Provides additional data to mini-buffer completion
+(use-package marginalia
+  ;; Same reason as 'vertico' and 'savehist'
+  :init (marginalia-mode 1))
+
+;; Add nerd-icons to mini-buffer marginalia
+(use-package nerd-icons-completion
+  :after marginalia
+  :hook (marginalia-mode . nerd-icons-completion-marginalia-setup)
+  :config (nerd-icons-completion-mode))
+#+end_src
+
 ** Orderless
 
 ** Consult
