@@ -74,3 +74,87 @@ packages. Here, we would like to address the following:
 
 ;;; early-init.el ends here
 #+end_src
+
+** Init.el
+
+Here, we perform the minimum to configure Emacs using the current
+org-file. To do so, we address the following:
+
++ Package Resources :: Emacs packages are installed from hosted
+  archives. Here, we define which archives and specify the priority
+  when downloading packages. The =use-package= resource is now included
+  with Emacs29.
+
++ Garbage Collection :: The "Garbage Collection Magic Hack" package
+  [[[https://github.com/emacsmirror/gcmh][github/gcmh]]] is employed by =Doom-Emacs= to enforce a "sneaky" GC
+  strategy. Previously, we maximized GC threshold to improve startup
+  times. Here, add hooks to reset these values after Emacs
+  initialization.
+
++ Load Config File :: Must call =org-babel-tangle= to generate =config.el=
+  from this narrative.
+
++ Tidy Emacs Directory :: The default paths used to store
+  configuration files and persistent data are not consistent across
+  Emacs packages. Some packages put these files directly in
+  ~user-emacs-directory~ or ~$HOME~. The =no-littering= package fixes this
+  by changing the values of path variables. Related, Emacs packages
+  may automatically generate customization, which are then stored at
+  the bottom of the =init.el= config file. To prevent the additional
+  clutter, we move these customizations to a separate
+  =custom-settings.el= file.
+
+*N.B.* The remaining src-blocks in this narrative also tangle to the
+=init.el= file. Still, it is worth isolating the "core" settings
+necessary for the configuration.
+
+#+begin_src emacs-lisp
+;;; -*- lexical-binding: t -*-
+
+;; Initialize package resources
+(setq package-archives
+      '(("gnu elpa"  . "https://elpa.gnu.org/packages/")
+        ("melpa"     . "https://melpa.org/packages/")
+        ("nongnu"    . "https://elpa.nongnu.org/nongnu/"))
+      package-archive-priorities
+      '(("melpa"    . 6)
+        ("gnu elpa" . 5)
+        ("nongnu"   . 4)))
+
+;; Is this still necessary since 'use-package' now builtin?
+(unless (package-installed-p 'use-package)
+  (package-install 'use-package))
+
+;; Standardize `use-package` settings
+(setq use-package-always-ensure t)
+(setq use-package-compute-statistics t)
+(setq use-package-verbose t)
+
+;; Uncomment to refresh packages everytime Emacs starts
+;; (package-refresh-contents t)
+
+;; Keep 'user-emacs-directory' tidy
+(use-package no-littering
+  :demand t
+
+  :config
+  ;; Save customizations in 'etc' sub-directory
+  ;; https://github.com/emacscollective/no-littering
+  (setq custom-file (no-littering-expand-etc-file-name "custom.el"))
+
+  ;; Load file
+  (when (file-exists-p custom-file)
+    (load custom-file)))
+
+;; Minimize GC interference
+(use-package gcmh
+  :init (gcmh-mode 1)
+  :hook
+  ;; Perform GC at the end of startup
+  (after-init . garbage-collect)
+  ;; Reset GC params after loading startup (after init-hook)
+  (emacs-startup . (lambda ()
+                     (setq gc-cons-percentage 0.1
+                           gcmh-high-cons-threshold (* 32 1024 1024)
+                           gcmh-idle-delay 30))))
+#+end_src
