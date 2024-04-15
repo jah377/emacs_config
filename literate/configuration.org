@@ -207,4 +207,19 @@ data when searching for a file using ~M-x find-file~.
 
 ** Orderless
 
+The =orderless= package provides mini-buffer completion irrespective of
+regex pattern order. In practice, searching for =README.org=
+auto-completes to the full file path, instead of needing to first
+enter the parent directory, then the sub-directory, etc etc.
+
+*N.B.* Below is copied directly from [[https://github.com/oantolin/orderless/tree/master][github/orderless]]
+
+#+begin_src emacs-lisp
+(use-package orderless
+  :custom
+  (completion-styles '(orderless basic))
+  (completion-category-defaults nil)
+  (completion-category-overrides '((file (styles partial-completion)))))
+#+end_src
+
 ** Consult
