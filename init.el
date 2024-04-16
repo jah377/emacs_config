@@ -48,6 +48,36 @@
 			   gcmh-high-cons-threshold (* 32 1024 1024)
 			   gcmh-idle-delay 30))))
 
+;; Disable theme before loading to avoid funkiness
+(defadvice load-theme (before disable-themes-first activate)
+  (mapc #'disable-theme custom-enabled-themes))
+
+(use-package doom-themes
+  :custom
+  ;; Some themes do not have italics
+  (doom-themes-enable-bold t "default")
+  (doom-themes-enable-italic t "default")
+  (doom-themes-padded-modeline t "pad modeline for readability")
+
+  :config
+  ;; Indicate errors by flashing modeline
+  (doom-themes-visual-bell-config)
+  ;; correct (and improve) org-mode native fontification
+  (doom-themes-org-config))
+
+(defun jh/light ()
+  "Turn on light theme."
+  (interactive)
+  (load-theme 'doom-tomorrow-day t))
+
+(defun jh/dark ()
+  "Turn on dark theme."
+  (interactive)
+  (load-theme 'doom-one t))
+
+;; Use light theme on startup
+(add-hook 'after-init-hook (lambda () (jh/dark)))
+
 ;; Mini-buffer completion
 (use-package vertico
   :init (vertico-mode 1)
