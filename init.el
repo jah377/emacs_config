@@ -3,18 +3,19 @@
 ;; Initialize package resources
 (setq package-archives
       '(("gnu elpa"  . "https://elpa.gnu.org/packages/")
-        ("melpa"     . "https://melpa.org/packages/")
-        ("nongnu"    . "https://elpa.nongnu.org/nongnu/"))
+	("melpa"     . "https://melpa.org/packages/")
+	("nongnu"    . "https://elpa.nongnu.org/nongnu/"))
       package-archive-priorities
       '(("melpa"    . 6)
-        ("gnu elpa" . 5)
-        ("nongnu"   . 4)))
+	("gnu elpa" . 5)
+	("nongnu"   . 4)))
 
 ;; Is this still necessary since 'use-package' now builtin?
 (unless (package-installed-p 'use-package)
   (package-install 'use-package))
 
 ;; Standardize `use-package` settings
+(require 'use-package-ensure)
 (setq use-package-always-ensure t)
 (setq use-package-compute-statistics t)
 (setq use-package-verbose t)
@@ -43,9 +44,9 @@
   (after-init . garbage-collect)
   ;; Reset GC params after loading startup (after init-hook)
   (emacs-startup . (lambda ()
-                     (setq gc-cons-percentage 0.1
-                           gcmh-high-cons-threshold (* 32 1024 1024)
-                           gcmh-idle-delay 30))))
+		     (setq gc-cons-percentage 0.1
+			   gcmh-high-cons-threshold (* 32 1024 1024)
+			   gcmh-idle-delay 30))))
 
 ;; Mini-buffer completion
 (use-package vertico

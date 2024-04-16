@@ -25,7 +25,6 @@ file directly in the =init.el= using ~org-babel-load-file~, which requires
 loading =org= before starting Emacs (slow).
 
 * Core
-
 ** Early-Init.el
 
 The =early-init.el= file, introduced with Emacs27, is the first file
@@ -48,31 +47,37 @@ packages. Here, we would like to address the following:
 + User Interface :: Disable UI elements as soon as possible
 
 #+begin_src emacs-lisp :tangle ../early-init.el
-;;; -*- lexical-binding: t -*-
+  ;;; -*- lexical-binding: t -*-
 
-;; Maximize gc threshold for initialization
-(setq gc-cons-threshold most-positive-fixnum)
+  ;; Maximize gc threshold for initialization
+  (setq gc-cons-threshold most-positive-fixnum)
 
-;; Trigger GC based on %allocation, ignored if < `gc-cons-threshold`
-(setq gc-cons-percentage 0.6)
+  ;; Trigger GC based on %allocation, ignored if < `gc-cons-threshold`
+  (setq gc-cons-percentage 0.6)
 
-;; Disable unwanted UI elements as early as possible
-(menu-bar-mode   -1)
-(scroll-bar-mode -1) ; Visible scrollbar
-(scroll-all-mode -1) ; Synchronized scrolling of buffers
-(tool-bar-mode   -1)
-(tooltip-mode    -1)
+  ;; Disable unwanted UI elements as early as possible
+  (menu-bar-mode   -1)
+  (scroll-bar-mode -1) ; Visible scrollbar
+  (scroll-all-mode -1) ; Synchronized scrolling of buffers
+  (tool-bar-mode   -1)
+  (tooltip-mode    -1)
 
-(setq-default
- inhibit-startup-screen t     ; Disable start-up screen
- inhibit-startup-message t    ; Disable start-up message
- initial-scratch-message ""   ; Empty initial *scratch* buffer
- initil-buffer-choice t)      ; Open *scratch* buffer at init
+  (setq-default
+   inhibit-startup-screen t     ; Disable start-up screen
+   inhibit-startup-message t    ; Disable start-up message
+   initial-scratch-message ""   ; Empty initial *scratch* buffer
+   initil-buffer-choice t)      ; Open *scratch* buffer at init
 
-;; Disable audible dinging and use visible bell
-(setq visible-bell t)
+  ;; Disable audible dinging and use visible bell
+  (setq visible-bell t)
 
-;;; early-init.el ends here
+  ;; Typing 'yes' and 'no' is difficult
+  (setq use-short-answers t)
+
+  ;; Prevent mistaken quits
+  (setq confirm-kill-emacs 'y-or-n-p)
+
+  ;;; early-init.el ends here
 #+end_src
 
 ** Init.el
@@ -109,58 +114,58 @@ org-file. To do so, we address the following:
 necessary for the configuration.
 
 #+begin_src emacs-lisp
-;;; -*- lexical-binding: t -*-
+  ;;; -*- lexical-binding: t -*-
 
-;; Initialize package resources
-(setq package-archives
-      '(("gnu elpa"  . "https://elpa.gnu.org/packages/")
-        ("melpa"     . "https://melpa.org/packages/")
-        ("nongnu"    . "https://elpa.nongnu.org/nongnu/"))
-      package-archive-priorities
-      '(("melpa"    . 6)
-        ("gnu elpa" . 5)
-        ("nongnu"   . 4)))
+  ;; Initialize package resources
+  (setq package-archives
+	'(("gnu elpa"  . "https://elpa.gnu.org/packages/")
+	  ("melpa"     . "https://melpa.org/packages/")
+	  ("nongnu"    . "https://elpa.nongnu.org/nongnu/"))
+	package-archive-priorities
+	'(("melpa"    . 6)
+	  ("gnu elpa" . 5)
+	  ("nongnu"   . 4)))
 
-;; Is this still necessary since 'use-package' now builtin?
-(unless (package-installed-p 'use-package)
-  (package-install 'use-package))
+  ;; Is this still necessary since 'use-package' now builtin?
+  (unless (package-installed-p 'use-package)
+    (package-install 'use-package))
 
-;; Standardize `use-package` settings
-(setq use-package-always-ensure t)
-(setq use-package-compute-statistics t)
-(setq use-package-verbose t)
+  ;; Standardize `use-package` settings
+  (require 'use-package-ensure)
+  (setq use-package-always-ensure t)
+  (setq use-package-compute-statistics t)
+  (setq use-package-verbose t)
 
-;; Uncomment to refresh packages everytime Emacs starts
-;; (package-refresh-contents t)
+  ;; Uncomment to refresh packages everytime Emacs starts
+  ;; (package-refresh-contents t)
 
-;; Keep 'user-emacs-directory' tidy
-(use-package no-littering
-  :demand t
+  ;; Keep 'user-emacs-directory' tidy
+  (use-package no-littering
+    :demand t
 
-  :config
-  ;; Save customizations in 'etc' sub-directory
-  ;; https://github.com/emacscollective/no-littering
-  (setq custom-file (no-littering-expand-etc-file-name "custom.el"))
+    :config
+    ;; Save customizations in 'etc' sub-directory
+    ;; https://github.com/emacscollective/no-littering
+    (setq custom-file (no-littering-expand-etc-file-name "custom.el"))
 
-  ;; Load file
-  (when (file-exists-p custom-file)
-    (load custom-file)))
+    ;; Load file
+    (when (file-exists-p custom-file)
+      (load custom-file)))
 
-;; Minimize GC interference
-(use-package gcmh
-  :init (gcmh-mode 1)
-  :hook
-  ;; Perform GC at the end of startup
-  (after-init . garbage-collect)
-  ;; Reset GC params after loading startup (after init-hook)
-  (emacs-startup . (lambda ()
-                     (setq gc-cons-percentage 0.1
-                           gcmh-high-cons-threshold (* 32 1024 1024)
-                           gcmh-idle-delay 30))))
+  ;; Minimize GC interference
+  (use-package gcmh
+    :init (gcmh-mode 1)
+    :hook
+    ;; Perform GC at the end of startup
+    (after-init . garbage-collect)
+    ;; Reset GC params after loading startup (after init-hook)
+    (emacs-startup . (lambda ()
+		       (setq gc-cons-percentage 0.1
+			     gcmh-high-cons-threshold (* 32 1024 1024)
+			     gcmh-idle-delay 30))))
 #+end_src
 
 * Mini-Buffer
-
 ** Vertico
 
 Out of the box, Emacs requires the user to iteratively probe
@@ -176,14 +181,14 @@ available.
 away. Note that this forces loading the package.
 
 #+begin_src emacs-lisp
-;; Mini-buffer completion
-(use-package vertico
-  :init (vertico-mode 1)
-  :custom (vertico-cycle t "Cyle to top of list"))
+  ;; Mini-buffer completion
+  (use-package vertico
+    :init (vertico-mode 1)
+    :custom (vertico-cycle t "Cyle to top of list"))
 
-;; Save minibuffer history for 'Vertico'
-(use-package savehist
-  :init (savehist-mode 1))
+  ;; Save minibuffer history for 'Vertico'
+  (use-package savehist
+    :init (savehist-mode 1))
 #+end_src
 
 ** Marginalia
@@ -193,16 +198,16 @@ mini-buffer completions. For example, file permissions/size/timestamp
 data when searching for a file using ~M-x find-file~.
 
 #+begin_src emacs-lisp
-;; Provides additional data to mini-buffer completion
-(use-package marginalia
-  ;; Same reason as 'vertico' and 'savehist'
-  :init (marginalia-mode 1))
+  ;; Provides additional data to mini-buffer completion
+  (use-package marginalia
+    ;; Same reason as 'vertico' and 'savehist'
+    :init (marginalia-mode 1))
 
-;; Add nerd-icons to mini-buffer marginalia
-(use-package nerd-icons-completion
-  :after marginalia
-  :hook (marginalia-mode . nerd-icons-completion-marginalia-setup)
-  :config (nerd-icons-completion-mode))
+  ;; Add nerd-icons to mini-buffer marginalia
+  (use-package nerd-icons-completion
+    :after marginalia
+    :hook (marginalia-mode . nerd-icons-completion-marginalia-setup)
+    :config (nerd-icons-completion-mode))
 #+end_src
 
 ** Orderless
@@ -215,11 +220,12 @@ enter the parent directory, then the sub-directory, etc etc.
 *N.B.* Below is copied directly from [[https://github.com/oantolin/orderless/tree/master][github/orderless]]
 
 #+begin_src emacs-lisp
-(use-package orderless
-  :custom
-  (completion-styles '(orderless basic))
-  (completion-category-defaults nil)
-  (completion-category-overrides '((file (styles partial-completion)))))
+  (use-package orderless
+    :custom
+    (completion-styles '(orderless basic))
+    (completion-category-defaults nil)
+    (completion-category-overrides '((file (styles partial-completion)))))
+
 #+end_src
 
 ** Consult
