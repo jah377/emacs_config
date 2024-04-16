@@ -199,6 +199,38 @@ necessary for the configuration.
 ;; Use light theme on startup
 (add-hook 'after-init-hook (lambda () (jh/dark)))
 #+end_src
+** Font
+
+Example of emphasis markers in org-mode:
++ *bold*, ~code~, =verbatim=, /italics/, _underline_
+
+The following fonts were downloaded and added to the configuration by
+doing the following:
++ Jetbrains Mono :: Manually downloaded from [[https://www.jetbrains.com/lp/mono/][jetbrains.com]]. The font
+  was installed by following the [[https://www.jetbrains.com/lp/mono/#how-to-install][how-to]] instructions verbatim.
+
+*N.B.* This section pulls heavily from [[https://github.com/daviwil/dotfiles/blob/emacs-home-service/.emacs.d/modules/dw-core.el][github/daviwil/.emacs.d]].
+
+#+begin_src emacs-lisp
+(set-face-attribute 'default nil
+                    :font "JetBrains Mono"
+                    :height 100
+                    :weight 'medium)
+
+
+;; Set the fixed pitch face
+(set-face-attribute 'fixed-pitch nil
+                    :font "JetBrains Mono"
+                    :height 100
+                    :weight 'medium)
+
+;; Set the variable pitch face
+(set-face-attribute 'variable-pitch nil
+                    :font "JetBrains Mono"
+                    :height 100
+                    :weight 'medium)
+#+end_src
+
 * Mini-Buffer
 ** Vertico
 

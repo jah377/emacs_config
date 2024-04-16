@@ -78,6 +78,24 @@
 ;; Use light theme on startup
 (add-hook 'after-init-hook (lambda () (jh/dark)))
 
+(set-face-attribute 'default nil
+                    :font "JetBrains Mono"
+                    :height 100
+                    :weight 'medium)
+
+
+;; Set the fixed pitch face
+(set-face-attribute 'fixed-pitch nil
+                    :font "JetBrains Mono"
+                    :height 100
+                    :weight 'medium)
+
+;; Set the variable pitch face
+(set-face-attribute 'variable-pitch nil
+                    :font "JetBrains Mono"
+                    :height 100
+                    :weight 'medium)
+
 ;; Mini-buffer completion
 (use-package vertico
   :init (vertico-mode 1)
