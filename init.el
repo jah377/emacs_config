@@ -96,6 +96,13 @@
                     :height 100
                     :weight 'medium)
 
+(use-package nerd-icons
+  :config
+  ;; Download nerd-icons if directory not found
+  (unless (car (file-expand-wildcards
+                (concat user-emacs-directory "elpa/nerd-icons-*")))
+    (nerd-icons-install-fonts t)))
+
 ;; Mini-buffer completion
 (use-package vertico
   :init (vertico-mode 1)
@@ -112,7 +119,7 @@
 
 ;; Add nerd-icons to mini-buffer marginalia
 (use-package nerd-icons-completion
-  :after marginalia
+  :after (marginalia nerd-icons)
   :hook (marginalia-mode . nerd-icons-completion-marginalia-setup)
   :config (nerd-icons-completion-mode))
 
