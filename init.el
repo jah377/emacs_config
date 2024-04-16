@@ -103,6 +103,14 @@
                 (concat user-emacs-directory "elpa/nerd-icons-*")))
     (nerd-icons-install-fonts t)))
 
+(use-package doom-modeline
+  :config (doom-modeline-mode 1)
+  :custom
+  (doom-modeline-buffer-file-name-style 'truncate-with-project "display project/./filename")
+  (doom-modeline-buffer-encoding nil "dont care about UTF-8 badge")
+  (doom-modeline-vcs-max-length 30 "limit branch name length")
+  (doom-modeline-enable-word-count t "turn on wordcount"))
+
 ;; Mini-buffer completion
 (use-package vertico
   :init (vertico-mode 1)
