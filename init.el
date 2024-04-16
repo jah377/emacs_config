@@ -111,6 +111,25 @@
   (doom-modeline-vcs-max-length 30 "limit branch name length")
   (doom-modeline-enable-word-count t "turn on wordcount"))
 
+;; Builtin Emacs minor mode highlights line at point
+(global-hl-line-mode 1)
+
+;; Flash cursor location when switching buffers
+(use-package beacon
+  :config (beacon-mode 1))
+
+;; Use bar for cursor instead of box
+(defvar standard-cursor-type 'bar)
+(setq-default cursor-type standard-cursor-type)
+
+(defun jh/hollow-cursor-if-magit-blob-mode ()
+  "Change cursor to hollow-box if viewing magit-blob file"
+  (if magit-blob-mode
+      (setq cursor-type 'hollow)
+    (setq cursor-type standard-cursor-type)))
+
+(add-hook 'magit-blob-mode-hook 'jh/hollow-cursor-if-magit-blob-mode)
+
 ;; Mini-buffer completion
 (use-package vertico
   :init (vertico-mode 1)

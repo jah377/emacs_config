@@ -255,6 +255,38 @@ doing the following:
     (doom-modeline-enable-word-count t "turn on wordcount"))
 #+end_src
 
+** Cursor
+
+#+begin_src emacs-lisp
+  ;; Builtin Emacs minor mode highlights line at point
+  (global-hl-line-mode 1)
+
+  ;; Flash cursor location when switching buffers
+  (use-package beacon
+    :config (beacon-mode 1))
+#+end_src
+
+I frequently use ~magit-find-file~ to view files on remote
+repositories (=magit-blob-mode=). It would be nice if the cursor would
+change shape to indicate whether my current buffer is the local or
+remote version of a file. *N.B.* It is not possible to change the
+~cursor-color~ locally. Previous attempts to change the cursor color
+to red did not revert the color back to the theme color.
+
+#+begin_src emacs-lisp
+  ;; Use bar for cursor instead of box
+  (defvar standard-cursor-type 'bar)
+  (setq-default cursor-type standard-cursor-type)
+
+  (defun jh/hollow-cursor-if-magit-blob-mode ()
+    "Change cursor to hollow-box if viewing magit-blob file"
+    (if magit-blob-mode
+	(setq cursor-type 'hollow)
+      (setq cursor-type standard-cursor-type)))
+
+  (add-hook 'magit-blob-mode-hook 'jh/hollow-cursor-if-magit-blob-mode)
+#+end_src
+
 * Mini-Buffer
 ** Vertico
 
