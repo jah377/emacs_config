@@ -169,36 +169,37 @@ necessary for the configuration.
 ** Theme
 
 #+begin_src emacs-lisp
-;; Disable theme before loading to avoid funkiness
-(defadvice load-theme (before disable-themes-first activate)
-  (mapc #'disable-theme custom-enabled-themes))
+  ;; Disable theme before loading to avoid funkiness
+  (defadvice load-theme (before disable-themes-first activate)
+    (mapc #'disable-theme custom-enabled-themes))
 
-(use-package doom-themes
-  :custom
-  ;; Some themes do not have italics
-  (doom-themes-enable-bold t "default")
-  (doom-themes-enable-italic t "default")
-  (doom-themes-padded-modeline t "pad modeline for readability")
+  (use-package doom-themes
+    :custom
+    ;; Some themes do not have italics
+    (doom-themes-enable-bold t "default")
+    (doom-themes-enable-italic t "default")
+    (doom-themes-padded-modeline t "pad modeline for readability")
 
-  :config
-  ;; Indicate errors by flashing modeline
-  (doom-themes-visual-bell-config)
-  ;; correct (and improve) org-mode native fontification
-  (doom-themes-org-config))
+    :config
+    ;; Indicate errors by flashing modeline
+    (doom-themes-visual-bell-config)
+    ;; correct (and improve) org-mode native fontification
+    (doom-themes-org-config))
 
-(defun jh/light ()
-  "Turn on light theme."
-  (interactive)
-  (load-theme 'doom-tomorrow-day t))
+  (defun jh/light ()
+    "Turn on light theme."
+    (interactive)
+    (load-theme 'doom-tomorrow-day t))
 
-(defun jh/dark ()
-  "Turn on dark theme."
-  (interactive)
-  (load-theme 'doom-one t))
+  (defun jh/dark ()
+    "Turn on dark theme."
+    (interactive)
+    (load-theme 'doom-one t))
 
-;; Use light theme on startup
-(add-hook 'after-init-hook (lambda () (jh/dark)))
+  ;; Use light theme on startup
+  (add-hook 'after-init-hook (lambda () (jh/dark)))
 #+end_src
+
 ** Font
 
 Example of emphasis markers in org-mode:
@@ -212,34 +213,35 @@ doing the following:
 *N.B.* This section pulls heavily from [[https://github.com/daviwil/dotfiles/blob/emacs-home-service/.emacs.d/modules/dw-core.el][github/daviwil/.emacs.d]].
 
 #+begin_src emacs-lisp
-(set-face-attribute 'default nil
-                    :font "JetBrains Mono"
-                    :height 100
-                    :weight 'medium)
+  (set-face-attribute 'default nil
+		      :font "JetBrains Mono"
+		      :height 100
+		      :weight 'medium)
 
 
-;; Set the fixed pitch face
-(set-face-attribute 'fixed-pitch nil
-                    :font "JetBrains Mono"
-                    :height 100
-                    :weight 'medium)
+  ;; Set the fixed pitch face
+  (set-face-attribute 'fixed-pitch nil
+		      :font "JetBrains Mono"
+		      :height 100
+		      :weight 'medium)
 
-;; Set the variable pitch face
-(set-face-attribute 'variable-pitch nil
-                    :font "JetBrains Mono"
-                    :height 100
-                    :weight 'medium)
+  ;; Set the variable pitch face
+  (set-face-attribute 'variable-pitch nil
+		      :font "JetBrains Mono"
+		      :height 100
+		      :weight 'medium)
 #+end_src
 
 ** Icons
 
 #+begin_src emacs-lisp
-(use-package nerd-icons
-  :config
-  ;; Download nerd-icons if directory not found
-  (unless (car (file-expand-wildcards
-                (concat user-emacs-directory "elpa/nerd-icons-*")))
-    (nerd-icons-install-fonts t)))
+  (use-package nerd-icons
+    :config
+    ;; Download nerd-icons if directory not found
+    (unless (car (file-expand-wildcards
+		  (concat user-emacs-directory "elpa/nerd-icons-*")))
+      (nerd-icons-install-fonts t)))
+#+end_src
 
 ** Modeline
 

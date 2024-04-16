@@ -79,28 +79,28 @@
 (add-hook 'after-init-hook (lambda () (jh/dark)))
 
 (set-face-attribute 'default nil
-                    :font "JetBrains Mono"
-                    :height 100
-                    :weight 'medium)
+		    :font "JetBrains Mono"
+		    :height 100
+		    :weight 'medium)
 
 
 ;; Set the fixed pitch face
 (set-face-attribute 'fixed-pitch nil
-                    :font "JetBrains Mono"
-                    :height 100
-                    :weight 'medium)
+		    :font "JetBrains Mono"
+		    :height 100
+		    :weight 'medium)
 
 ;; Set the variable pitch face
 (set-face-attribute 'variable-pitch nil
-                    :font "JetBrains Mono"
-                    :height 100
-                    :weight 'medium)
+		    :font "JetBrains Mono"
+		    :height 100
+		    :weight 'medium)
 
 (use-package nerd-icons
   :config
   ;; Download nerd-icons if directory not found
   (unless (car (file-expand-wildcards
-                (concat user-emacs-directory "elpa/nerd-icons-*")))
+		(concat user-emacs-directory "elpa/nerd-icons-*")))
     (nerd-icons-install-fonts t)))
 
 (use-package doom-modeline
