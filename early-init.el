@@ -22,4 +22,10 @@
 ;; Disable audible dinging and use visible bell
 (setq visible-bell t)
 
+;; Typing 'yes' and 'no' is difficult
+(setq use-short-answers t)
+
+;; Prevent mistaken quits
+(setq confirm-kill-emacs 'y-or-n-p)
+
 ;;; early-init.el ends here
