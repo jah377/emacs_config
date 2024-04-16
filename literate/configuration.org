@@ -223,3 +223,9 @@ enter the parent directory, then the sub-directory, etc etc.
 #+end_src
 
 ** Consult
+
+=Consult= is a powerful package for Emacs that enhances the mini-buffer
+experience by providing advanced completion and selection
+capabilities.
+
++ [[https://github.com/condy0919/.emacs.d/blob/8519a2af5847ecb69ff841db8ef76ed42465fb80/lisp/init-minibuffer.el#L22][condy0919]] :: example of remapping existing keybindings
