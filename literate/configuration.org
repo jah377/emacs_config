@@ -287,6 +287,22 @@ to red did not revert the color back to the theme color.
   (add-hook 'magit-blob-mode-hook 'jh/hollow-cursor-if-magit-blob-mode)
 #+end_src
 
+** Highlighting
+
+#+begin_src emacs-lisp
+  ;; Global minor mode to highlight thing under point
+  (use-package highlight-thing
+    :demand t
+    :hook (prog-mode org-mode)
+    :custom
+    (highlight-thing-exclude-thing-under-point t)
+    (highlight-thing-all-visible-buffers t)
+    (highlight-thing-case-sensitive-p t)
+    (highlight-thing-ignore-list
+	  '("False" "True", "return", "None", "if", "else", "self",
+	    "import", "from", "in", "def", "class")))
+#+end_src
+
 * Mini-Buffer
 ** Vertico
 

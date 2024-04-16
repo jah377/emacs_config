@@ -130,6 +130,18 @@
 
 (add-hook 'magit-blob-mode-hook 'jh/hollow-cursor-if-magit-blob-mode)
 
+;; Global minor mode to highlight thing under point
+(use-package highlight-thing
+  :demand t
+  :hook (prog-mode org-mode)
+  :custom
+  (highlight-thing-exclude-thing-under-point t)
+  (highlight-thing-all-visible-buffers t)
+  (highlight-thing-case-sensitive-p t)
+  (highlight-thing-ignore-list
+	'("False" "True", "return", "None", "if", "else", "self",
+	  "import", "from", "in", "def", "class")))
+
 ;; Mini-buffer completion
 (use-package vertico
   :init (vertico-mode 1)
