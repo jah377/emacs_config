@@ -220,3 +220,5 @@
     (use-package git-gutter-fringe
       :commands git-gutter-mode
       :config (global-git-gutter-mode)))
+
+;;; init.el ends here

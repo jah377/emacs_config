@@ -476,3 +476,12 @@ capabilities.
 	:commands git-gutter-mode
 	:config (global-git-gutter-mode)))
 #+end_src
+
+* Conclusion
+
+Ta-dah!
+
+#+begin_src emacs-lisp
+  ;;; init.el ends here
+#+end_src
+
