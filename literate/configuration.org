@@ -18,18 +18,18 @@ configuring Emacs, including:
 + early-init.el :: Basic settings before package and UI initialization
 + init.el :: Remaining configuration from our literate file
 
-_This org file is not loaded directly_. To modify my Emacs setup, I edit
-the file and then call =org-babel-tangle= (~C-c C-v t~). This approach is
-more desirable than the more common method of loading the literate
-file directly in the =init.el= using ~org-babel-load-file~, which requires
-loading =org= before starting Emacs (slow).
+_This org file is not loaded directly_. To modify my Emacs setup, I
+edit the file and then call =org-babel-tangle= (~C-c C-v t~). This
+approach is more desirable than the more common method of loading the
+literate file directly in the =init.el= using ~org-babel-load-file~,
+which requires loading =org= before starting Emacs (slow).
 
 * Core
 ** Early-Init.el
 
 The =early-init.el= file, introduced with Emacs27, is the first file
-that Emacs reads when starting up (before =init.el=). In principal, the
-early initialization file should set-up a few basic things before
+that Emacs reads when starting up (before =init.el=). In principal,
+the early initialization file should set-up a few basic things before
 Emacs produces the initial frame, and should not depend on any
 packages. Here, we would like to address the following:
 
@@ -39,8 +39,10 @@ packages. Here, we would like to address the following:
   manage a program's memory which, in turn, reduces the potential for
   memory-related bugs. We attempt to reduce startup times by changing
   two variables:
+  
   - gc-cons-threshold :: Maximize threshold used to trigger GC. This
     is employed by Doom-Emacs [[[https://github.com/doomemacs/doomemacs/blob/master/early-init.el][doomemacs/early-init.el]]].
+    
   - gc-cons-percentage :: Trigger GC based on %memory allocation;
     ignore if less than =gc-cons-threshold=.
 
@@ -87,8 +89,8 @@ org-file. To do so, we address the following:
 
 + Package Resources :: Emacs packages are installed from hosted
   archives. Here, we define which archives and specify the priority
-  when downloading packages. The =use-package= resource is now included
-  with Emacs29.
+  when downloading packages. The =use-package= resource is now
+  included with Emacs29.
 
 + Garbage Collection :: The "Garbage Collection Magic Hack" package
   [[[https://github.com/emacsmirror/gcmh][github/gcmh]]] is employed by =Doom-Emacs= to enforce a "sneaky" GC
@@ -96,17 +98,17 @@ org-file. To do so, we address the following:
   times. Here, add hooks to reset these values after Emacs
   initialization.
 
-+ Load Config File :: Must call =org-babel-tangle= to generate =config.el=
-  from this narrative.
++ Load Config File :: Must call =org-babel-tangle= to generate
+  =config.el= from this narrative.
 
 + Tidy Emacs Directory :: The default paths used to store
   configuration files and persistent data are not consistent across
   Emacs packages. Some packages put these files directly in
-  ~user-emacs-directory~ or ~$HOME~. The =no-littering= package fixes this
-  by changing the values of path variables. Related, Emacs packages
-  may automatically generate customization, which are then stored at
-  the bottom of the =init.el= config file. To prevent the additional
-  clutter, we move these customizations to a separate
+  ~user-emacs-directory~ or ~$HOME~. The =no-littering= package fixes
+  this by changing the values of path variables. Related, Emacs
+  packages may automatically generate customization, which are then
+  stored at the bottom of the =init.el= config file. To prevent the
+  additional clutter, we move these customizations to a separate
   =custom-settings.el= file.
 
 *N.B.* The remaining src-blocks in this narrative also tangle to the
@@ -202,8 +204,8 @@ necessary for the configuration.
 
 ** Font
 
-Example of emphasis markers in org-mode:
-+ *bold*, ~code~, =verbatim=, /italics/, _underline_
+Example of emphasis markers in org-mode include *bold*, ~code~,
+=verbatim=, /italics/, _underline_.
 
 The following fonts were downloaded and added to the configuration by
 doing the following:
@@ -380,15 +382,15 @@ back ~C-b~ and deleting M, -, or x. _Not ideal_.
 
 Out of the box, Emacs requires the user to iteratively probe
 =*Completion*= buffer as they blindly type the name of the desired
-buffer or file-path when calling ~switch-to-buffer~ or ~file-file~, for
-example. _Annoying_. Alternatively, the =Vertico= package displays these
-results directly in the mini-buffer. The separate package =Savehist=
-saves the mini-buffer history so previous completions are more quickly
-available.
+buffer or file-path when calling ~switch-to-buffer~ or ~file-file~,
+for example. _Annoying_. Alternatively, the =Vertico= package displays
+these results directly in the mini-buffer. The separate package
+=Savehist= saves the mini-buffer history so previous completions are
+more quickly available.
 
-*N.B.* The author of =Vertico= recommends activating the packages in the
-~:init~ section of =use-package= such that the mode gets enabled right
-away. Note that this forces loading the package.
+*N.B.* The author of =Vertico= recommends activating the packages in
+the ~:init~ section of =use-package= such that the mode gets enabled
+right away. Note that this forces loading the package.
 
 #+begin_src emacs-lisp
   ;; Mini-buffer completion
@@ -422,8 +424,8 @@ data when searching for a file using ~M-x find-file~.
 
 ** Orderless
 
-The =orderless= package provides mini-buffer completion irrespective of
-regex pattern order. In practice, searching for =README.org=
+The =orderless= package provides mini-buffer completion irrespective
+of regex pattern order. In practice, searching for =README.org=
 auto-completes to the full file path, instead of needing to first
 enter the parent directory, then the sub-directory, etc etc.
 
@@ -440,11 +442,94 @@ enter the parent directory, then the sub-directory, etc etc.
 
 ** Consult
 
-=Consult= is a powerful package for Emacs that enhances the mini-buffer
-experience by providing advanced completion and selection
+=Consult= is a powerful package for Emacs that enhances the
+mini-buffer experience by providing advanced completion and selection
 capabilities.
 
 + [[https://github.com/condy0919/.emacs.d/blob/8519a2af5847ecb69ff841db8ef76ed42465fb80/lisp/init-minibuffer.el#L22][condy0919]] :: example of remapping existing keybindings
+
+* Org-Mode
+** General Settings
+
+#+begin_src emacs-lisp
+  (use-package org
+    :demand t
+    :hook (;; Refresh inline images after executing scr-block
+	   (org-babel-after-execute . (lambda () (org-display-inline-images nil t)))
+	   ;; Cleanup whitespace when entering/exiting org-edit-src buffer
+	   (org-src-mode . whitespace-cleanup))
+
+    :custom
+    ;; Org-Mode structure settings
+    (org-hide-leading-stars t "Use org-modern bullets for header level")
+    (org-startup-folded t     "Fold headers by default")
+    (org-startup-indented t   "Align text vertically with header level")
+    (org-adapt-indentation t  "Indent w.r.t. org-header level")
+
+    ;; Text behavior settings
+    (org-hide-emphasis-markers t "Remove =STR= emphasis markers")
+    (org-special-ctrl-a/e t      "C-a/e jump to start/end of headline text")
+
+    ;; Babel / Source code settings
+    (org-confirm-babel-evaluate nil "Do not confirm src-block evaluation")
+    (org-src-window-setup 'current-window "Use current buffer for src-context")
+    (org-src-preserve-indentation t "Align src code with leftmost column")
+    (org-src-ask-before-returning-to-edit-buffer t "Turn off prompt before edit buffer")
+
+    ;; Figure settings
+    (org-display-remote-inline-images 'cache "Allow inline display of remote images")
+    (org-startup-with-inline-images t "Include images when opening org-file")
+
+    ;; File path settings
+    (org-link-file-path-type 'relative "Use relative links for org-insert-link")
+
+    ;; Misc. settings
+    ;; Cache error -- https://emacs.stackexchange.com/a/42014
+    (org-element-use-cache nil "Turn off due to frequent error")
+    (org-ellipsis "▾"          "Indicator for collapsed header")
+
+    ;; ? speed-key opens Speed Keys help.
+    (org-use-speed-commands
+     ;; If non-nil, 'org-use-speed-commands' allows efficient
+     ;; navigation of headline text when cursor is on leading
+     ;; star. Custom function allows use of Speed keys if on ANY
+     ;; stars.
+     (lambda ()
+       (and (looking-at org-outline-regexp)
+	    (looking-back "^\**"))))
+
+    :config
+    ;; Improved vertical scrolling when images are present
+    (use-package iscroll
+      :hook (org-mode)))
+#+end_src
+
+** Org-Modern
+
+The =org-modern= package improves the visuals of org-mode by styling the
+headlines, keywords, tables, and source-blocks.
+
+#+begin_src emacs-lisp
+  ;; Improve visuals by styling headlines, keywords, tables, etc
+  (use-package org-modern
+    :after org
+    :commands (org-modern-mode org-modern-agenda)
+    :hook ((org-mode                 . org-modern-mode)
+	   (org-agenda-finalize-hook . org-modern-agenda))
+    :custom((org-modern-block-fringe 5)
+	    (org-modern-star '("◉" "○" "●" "○" "●" "○" "●"))))
+#+end_src
+
+** Org-Appear
+
+The =org-appear= reveals hidden emphasis markers only if the point is
+inside the markers. We also extend this functionality to LaTeX.
+
+#+begin_src emacs-lisp
+  (use-package org-appear
+    :hook (org-mode)
+    :custom (org-appear-inside-latex t))
+#+end_src
 
 * Version Control
 

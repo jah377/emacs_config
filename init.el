@@ -194,6 +194,70 @@
   (completion-category-defaults nil)
   (completion-category-overrides '((file (styles partial-completion)))))
 
+(use-package org
+  :demand t
+  :hook (;; Refresh inline images after executing scr-block
+	 (org-babel-after-execute . (lambda () (org-display-inline-images nil t)))
+	 ;; Cleanup whitespace when entering/exiting org-edit-src buffer
+	 (org-src-mode . whitespace-cleanup))
+
+  :custom
+  ;; Org-Mode structure settings
+  (org-hide-leading-stars t "Use org-modern bullets for header level")
+  (org-startup-folded t     "Fold headers by default")
+  (org-startup-indented t   "Align text vertically with header level")
+  (org-adapt-indentation t  "Indent w.r.t. org-header level")
+
+  ;; Text behavior settings
+  (org-hide-emphasis-markers t "Remove =STR= emphasis markers")
+  (org-special-ctrl-a/e t      "C-a/e jump to start/end of headline text")
+
+  ;; Babel / Source code settings
+  (org-confirm-babel-evaluate nil "Do not confirm src-block evaluation")
+  (org-src-window-setup 'current-window "Use current buffer for src-context")
+  (org-src-preserve-indentation t "Align src code with leftmost column")
+  (org-src-ask-before-returning-to-edit-buffer t "Turn off prompt before edit buffer")
+
+  ;; Figure settings
+  (org-display-remote-inline-images 'cache "Allow inline display of remote images")
+  (org-startup-with-inline-images t "Include images when opening org-file")
+
+  ;; File path settings
+  (org-link-file-path-type 'relative "Use relative links for org-insert-link")
+
+  ;; Misc. settings
+  ;; Cache error -- https://emacs.stackexchange.com/a/42014
+  (org-element-use-cache nil "Turn off due to frequent error")
+  (org-ellipsis "▾"          "Indicator for collapsed header")
+
+  ;; ? speed-key opens Speed Keys help.
+  (org-use-speed-commands
+   ;; If non-nil, 'org-use-speed-commands' allows efficient
+   ;; navigation of headline text when cursor is on leading
+   ;; star. Custom function allows use of Speed keys if on ANY
+   ;; stars.
+   (lambda ()
+     (and (looking-at org-outline-regexp)
+	  (looking-back "^\**"))))
+
+  :config
+  ;; Improved vertical scrolling when images are present
+  (use-package iscroll
+    :hook (org-mode)))
+
+;; Improve visuals by styling headlines, keywords, tables, etc
+(use-package org-modern
+  :after org
+  :commands (org-modern-mode org-modern-agenda)
+  :hook ((org-mode                 . org-modern-mode)
+	 (org-agenda-finalize-hook . org-modern-agenda))
+  :custom((org-modern-block-fringe 5)
+	  (org-modern-star '("◉" "○" "●" "○" "●" "○" "●"))))
+
+(use-package org-appear
+  :hook (org-mode)
+  :custom (org-appear-inside-latex t))
+
 (use-package magit
   :bind ("C-x g" . magit-status)
   :diminish magit-minor-mode
