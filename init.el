@@ -148,6 +148,26 @@
 ;; Hook builtin Emacs minor-mode to only display line numbers in prog-mode
 (add-hook 'prog-mode-hook 'display-line-numbers-mode)
 
+;; Do not ask if I want to kill a buffer (C-x C-k)
+(setq kill-buffer-query-functions nil)
+
+;; Kill current buffer instead of selecting it from minibuffer
+(global-set-key (kbd "C-x M-k") 'kill-current-buffer)
+
+(defun crm-indicator (args)
+  "Add indicator to completion promp when using 'completing-read-multiple'"
+  (cons (format "[CRM%s] %s"
+		(replace-regexp-in-string
+		 "\\`\\[.*?]\\*\\|\\[.*?]\\*\\'" ""
+		 crm-separator)
+		(car args))
+	(cdr args)))
+(advice-add #'completing-read-multiple :filter-args #'crm-indicator)
+
+(setq minibuffer-prompt-properties
+      '(read-only t cursor-intangible t face minibuffer-prompt))
+(add-hook 'minibuffer-setup-hook #'cursor-intangible-mode)
+
 ;; Mini-buffer completion
 (use-package vertico
   :init (vertico-mode 1)
