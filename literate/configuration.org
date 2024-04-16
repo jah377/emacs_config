@@ -303,6 +303,16 @@ to red did not revert the color back to the theme color.
 	    "import", "from", "in", "def", "class")))
 #+end_src
 
+** Line Numbering
+
+#+begin_src emacs-lisp
+  ;; Builtin Emacs minor-mode shows column number in mode-line
+  (column-number-mode 1)
+
+  ;; Hook builtin Emacs minor-mode to only display line numbers in prog-mode
+  (add-hook 'prog-mode-hook 'display-line-numbers-mode)
+#+end_src
+
 * Mini-Buffer
 ** Vertico
 

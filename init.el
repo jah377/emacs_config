@@ -142,6 +142,12 @@
 	'("False" "True", "return", "None", "if", "else", "self",
 	  "import", "from", "in", "def", "class")))
 
+;; Builtin Emacs minor-mode shows column number in mode-line
+(column-number-mode 1)
+
+;; Hook builtin Emacs minor-mode to only display line numbers in prog-mode
+(add-hook 'prog-mode-hook 'display-line-numbers-mode)
+
 ;; Mini-buffer completion
 (use-package vertico
   :init (vertico-mode 1)
