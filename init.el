@@ -194,10 +194,13 @@
 ;; Builtin Emacs mode inserts closing delimiter upon typing an open delimiter
 (electric-pair-mode 1)
 
+;; Prevent "())" if hitting ")" after 'electric-pair-mode' completes "()"
+(setq electric-pair-skip-self t)
+
 ;; Builtin Emacs mode highlights matching delimiter pairs
 (show-paren-mode 1)
 (setq-default show-paren-style 'parenthesis ;; Highlight delimiters, not contents
-              show-paren-when-point-in-periphery t) ;; Highlight even if ws present
+	      show-paren-when-point-in-periphery t) ;; Highlight even if ws present
 
 ;; Do not ask if I want to kill a buffer (C-x C-k)
 (setq kill-buffer-query-functions nil)
