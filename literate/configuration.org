@@ -49,37 +49,37 @@ packages. Here, we would like to address the following:
 + User Interface :: Disable UI elements as soon as possible
 
 #+begin_src emacs-lisp :tangle ../early-init.el
-  ;;; -*- lexical-binding: t -*-
+;;; -*- lexical-binding: t -*-
 
-  ;; Maximize gc threshold for initialization
-  (setq gc-cons-threshold most-positive-fixnum)
+;; Maximize gc threshold for initialization
+(setq gc-cons-threshold most-positive-fixnum)
 
-  ;; Trigger GC based on %allocation, ignored if < `gc-cons-threshold`
-  (setq gc-cons-percentage 0.6)
+;; Trigger GC based on %allocation, ignored if < `gc-cons-threshold`
+(setq gc-cons-percentage 0.6)
 
-  ;; Disable unwanted UI elements as early as possible
-  (menu-bar-mode   -1)
-  (scroll-bar-mode -1) ; Visible scrollbar
-  (scroll-all-mode -1) ; Synchronized scrolling of buffers
-  (tool-bar-mode   -1)
-  (tooltip-mode    -1)
+;; Disable unwanted UI elements as early as possible
+(menu-bar-mode   -1)
+(scroll-bar-mode -1) ; Visible scrollbar
+(scroll-all-mode -1) ; Synchronized scrolling of buffers
+(tool-bar-mode   -1)
+(tooltip-mode    -1)
 
-  (setq-default
-   inhibit-startup-screen t     ; Disable start-up screen
-   inhibit-startup-message t    ; Disable start-up message
-   initial-scratch-message ""   ; Empty initial *scratch* buffer
-   initil-buffer-choice t)      ; Open *scratch* buffer at init
+(setq-default
+ inhibit-startup-screen t     ; Disable start-up screen
+ inhibit-startup-message t    ; Disable start-up message
+ initial-scratch-message ""   ; Empty initial *scratch* buffer
+ initil-buffer-choice t)      ; Open *scratch* buffer at init
 
-  ;; Disable audible dinging and use visible bell
-  (setq visible-bell t)
+;; Disable audible dinging and use visible bell
+(setq visible-bell t)
 
-  ;; Typing 'yes' and 'no' is difficult
-  (setq use-short-answers t)
+;; Typing 'yes' and 'no' is difficult
+(setq use-short-answers t)
 
-  ;; Prevent mistaken quits
-  (setq confirm-kill-emacs 'y-or-n-p)
+;; Prevent mistaken quits
+(setq confirm-kill-emacs 'y-or-n-p)
 
-  ;;; early-init.el ends here
+;;; early-init.el ends here
 #+end_src
 
 ** Init.el
@@ -118,88 +118,88 @@ necessary for the configuration.
 #+begin_src emacs-lisp
   ;;; -*- lexical-binding: t -*-
 
-  ;; Initialize package resources
-  (setq package-archives
-	'(("gnu elpa"  . "https://elpa.gnu.org/packages/")
-	  ("melpa"     . "https://melpa.org/packages/")
-	  ("nongnu"    . "https://elpa.nongnu.org/nongnu/"))
-	package-archive-priorities
-	'(("melpa"    . 6)
-	  ("gnu elpa" . 5)
-	  ("nongnu"   . 4)))
+;; Initialize package resources
+(setq package-archives
+      '(("gnu elpa"  . "https://elpa.gnu.org/packages/")
+	("melpa"     . "https://melpa.org/packages/")
+	("nongnu"    . "https://elpa.nongnu.org/nongnu/"))
+      package-archive-priorities
+      '(("melpa"    . 6)
+	("gnu elpa" . 5)
+	("nongnu"   . 4)))
 
-  ;; Is this still necessary since 'use-package' now builtin?
-  (unless (package-installed-p 'use-package)
-    (package-install 'use-package))
+;; Is this still necessary since 'use-package' now builtin?
+(unless (package-installed-p 'use-package)
+  (package-install 'use-package))
 
-  ;; Standardize `use-package` settings
-  (require 'use-package-ensure)
-  (setq use-package-always-ensure t)
-  (setq use-package-compute-statistics t)
-  (setq use-package-verbose t)
+;; Standardize `use-package` settings
+(require 'use-package-ensure)
+(setq use-package-always-ensure t)
+(setq use-package-compute-statistics t)
+(setq use-package-verbose t)
 
-  ;; Uncomment to refresh packages everytime Emacs starts
-  ;; (package-refresh-contents t)
+;; Uncomment to refresh packages everytime Emacs starts
+;; (package-refresh-contents t)
 
-  ;; Keep 'user-emacs-directory' tidy
-  (use-package no-littering
-    :demand t
+;; Keep 'user-emacs-directory' tidy
+(use-package no-littering
+  :demand t
 
-    :config
-    ;; Save customizations in 'etc' sub-directory
-    ;; https://github.com/emacscollective/no-littering
-    (setq custom-file (no-littering-expand-etc-file-name "custom.el"))
+  :config
+  ;; Save customizations in 'etc' sub-directory
+  ;; https://github.com/emacscollective/no-littering
+  (setq custom-file (no-littering-expand-etc-file-name "custom.el"))
 
-    ;; Load file
-    (when (file-exists-p custom-file)
-      (load custom-file)))
+  ;; Load file
+  (when (file-exists-p custom-file)
+    (load custom-file)))
 
-  ;; Minimize GC interference
-  (use-package gcmh
-    :init (gcmh-mode 1)
-    :hook
-    ;; Perform GC at the end of startup
-    (after-init . garbage-collect)
-    ;; Reset GC params after loading startup (after init-hook)
-    (emacs-startup . (lambda ()
-		       (setq gc-cons-percentage 0.1
-			     gcmh-high-cons-threshold (* 32 1024 1024)
-			     gcmh-idle-delay 30))))
+;; Minimize GC interference
+(use-package gcmh
+  :init (gcmh-mode 1)
+  :hook
+  ;; Perform GC at the end of startup
+  (after-init . garbage-collect)
+  ;; Reset GC params after loading startup (after init-hook)
+  (emacs-startup . (lambda ()
+		     (setq gc-cons-percentage 0.1
+			   gcmh-high-cons-threshold (* 32 1024 1024)
+			   gcmh-idle-delay 30))))
 #+end_src
 
 * Visuals
 ** Theme
 
 #+begin_src emacs-lisp
-  ;; Disable theme before loading to avoid funkiness
-  (defadvice load-theme (before disable-themes-first activate)
-    (mapc #'disable-theme custom-enabled-themes))
+;; Disable theme before loading to avoid funkiness
+(defadvice load-theme (before disable-themes-first activate)
+  (mapc #'disable-theme custom-enabled-themes))
 
-  (use-package doom-themes
-    :custom
-    ;; Some themes do not have italics
-    (doom-themes-enable-bold t "default")
-    (doom-themes-enable-italic t "default")
-    (doom-themes-padded-modeline t "pad modeline for readability")
+(use-package doom-themes
+  :custom
+  ;; Some themes do not have italics
+  (doom-themes-enable-bold t "default")
+  (doom-themes-enable-italic t "default")
+  (doom-themes-padded-modeline t "pad modeline for readability")
 
-    :config
-    ;; Indicate errors by flashing modeline
-    (doom-themes-visual-bell-config)
-    ;; correct (and improve) org-mode native fontification
-    (doom-themes-org-config))
+  :config
+  ;; Indicate errors by flashing modeline
+  (doom-themes-visual-bell-config)
+  ;; correct (and improve) org-mode native fontification
+  (doom-themes-org-config))
 
-  (defun jh/light ()
-    "Turn on light theme."
-    (interactive)
-    (load-theme 'doom-tomorrow-day t))
+(defun jh/light ()
+  "Turn on light theme."
+  (interactive)
+  (load-theme 'doom-tomorrow-day t))
 
-  (defun jh/dark ()
-    "Turn on dark theme."
-    (interactive)
-    (load-theme 'doom-one t))
+(defun jh/dark ()
+  "Turn on dark theme."
+  (interactive)
+  (load-theme 'doom-one t))
 
-  ;; Use light theme on startup
-  (add-hook 'after-init-hook (lambda () (jh/dark)))
+;; Use light theme on startup
+(add-hook 'after-init-hook (lambda () (jh/dark)))
 #+end_src
 
 ** Font
@@ -215,57 +215,57 @@ doing the following:
 *N.B.* This section pulls heavily from [[https://github.com/daviwil/dotfiles/blob/emacs-home-service/.emacs.d/modules/dw-core.el][github/daviwil/.emacs.d]].
 
 #+begin_src emacs-lisp
-  (set-face-attribute 'default nil
-		      :font "JetBrains Mono"
-		      :height 100
-		      :weight 'medium)
+(set-face-attribute 'default nil
+		    :font "JetBrains Mono"
+		    :height 100
+		    :weight 'medium)
 
 
-  ;; Set the fixed pitch face
-  (set-face-attribute 'fixed-pitch nil
-		      :font "JetBrains Mono"
-		      :height 100
-		      :weight 'medium)
+;; Set the fixed pitch face
+(set-face-attribute 'fixed-pitch nil
+		    :font "JetBrains Mono"
+		    :height 100
+		    :weight 'medium)
 
-  ;; Set the variable pitch face
-  (set-face-attribute 'variable-pitch nil
-		      :font "JetBrains Mono"
-		      :height 100
-		      :weight 'medium)
+;; Set the variable pitch face
+(set-face-attribute 'variable-pitch nil
+		    :font "JetBrains Mono"
+		    :height 100
+		    :weight 'medium)
 #+end_src
 
 ** Icons
 
 #+begin_src emacs-lisp
-  (use-package nerd-icons
-    :config
-    ;; Download nerd-icons if directory not found
-    (unless (car (file-expand-wildcards
-		  (concat user-emacs-directory "elpa/nerd-icons-*")))
-      (nerd-icons-install-fonts t)))
+(use-package nerd-icons
+  :config
+  ;; Download nerd-icons if directory not found
+  (unless (car (file-expand-wildcards
+		(concat user-emacs-directory "elpa/nerd-icons-*")))
+    (nerd-icons-install-fonts t)))
 #+end_src
 
 ** Modeline
 
 #+begin_src emacs-lisp
-  (use-package doom-modeline
-    :config (doom-modeline-mode 1)
-    :custom
-    (doom-modeline-buffer-file-name-style 'truncate-with-project "display project/./filename")
-    (doom-modeline-buffer-encoding nil "dont care about UTF-8 badge")
-    (doom-modeline-vcs-max-length 30 "limit branch name length")
-    (doom-modeline-enable-word-count t "turn on wordcount"))
+(use-package doom-modeline
+  :config (doom-modeline-mode 1)
+  :custom
+  (doom-modeline-buffer-file-name-style 'truncate-with-project "display project/./filename")
+  (doom-modeline-buffer-encoding nil "dont care about UTF-8 badge")
+  (doom-modeline-vcs-max-length 30 "limit branch name length")
+  (doom-modeline-enable-word-count t "turn on wordcount"))
 #+end_src
 
 ** Cursor
 
 #+begin_src emacs-lisp
-  ;; Builtin Emacs minor mode highlights line at point
-  (global-hl-line-mode 1)
+;; Builtin Emacs minor mode highlights line at point
+(global-hl-line-mode 1)
 
-  ;; Flash cursor location when switching buffers
-  (use-package beacon
-    :config (beacon-mode 1))
+;; Flash cursor location when switching buffers
+(use-package beacon
+  :config (beacon-mode 1))
 #+end_src
 
 I frequently use ~magit-find-file~ to view files on remote
@@ -276,54 +276,153 @@ remote version of a file. *N.B.* It is not possible to change the
 to red did not revert the color back to the theme color.
 
 #+begin_src emacs-lisp
-  ;; Use bar for cursor instead of box
-  (defvar standard-cursor-type 'bar)
-  (setq-default cursor-type standard-cursor-type)
+;; Use bar for cursor instead of box
+(defvar standard-cursor-type 'bar)
+(setq-default cursor-type standard-cursor-type)
 
-  (defun jh/hollow-cursor-if-magit-blob-mode ()
-    "Change cursor to hollow-box if viewing magit-blob file"
-    (if magit-blob-mode
-	(setq cursor-type 'hollow)
-      (setq cursor-type standard-cursor-type)))
+(defun jh/hollow-cursor-if-magit-blob-mode ()
+  "Change cursor to hollow-box if viewing magit-blob file"
+  (if magit-blob-mode
+      (setq cursor-type 'hollow)
+    (setq cursor-type standard-cursor-type)))
 
-  (add-hook 'magit-blob-mode-hook 'jh/hollow-cursor-if-magit-blob-mode)
+(add-hook 'magit-blob-mode-hook 'jh/hollow-cursor-if-magit-blob-mode)
 #+end_src
 
 ** Highlighting
 
 #+begin_src emacs-lisp
-  ;; Global minor mode to highlight thing under point
-  (use-package highlight-thing
-    :demand t
-    :hook (prog-mode org-mode)
-    :custom
-    (highlight-thing-exclude-thing-under-point t)
-    (highlight-thing-all-visible-buffers t)
-    (highlight-thing-case-sensitive-p t)
-    (highlight-thing-ignore-list
-	  '("False" "True", "return", "None", "if", "else", "self",
-	    "import", "from", "in", "def", "class")))
+;; Global minor mode to highlight thing under point
+(use-package highlight-thing
+  :demand t
+  :hook (prog-mode org-mode)
+  :custom
+  (highlight-thing-exclude-thing-under-point t)
+  (highlight-thing-all-visible-buffers t)
+  (highlight-thing-case-sensitive-p t)
+  (highlight-thing-ignore-list
+   '("False" "True", "return", "None", "if", "else", "self",
+     "import", "from", "in", "def", "class")))
 #+end_src
 
 ** Line Numbering
 
 #+begin_src emacs-lisp
-  ;; Builtin Emacs minor-mode shows column number in mode-line
-  (column-number-mode 1)
+;; Builtin Emacs minor-mode shows column number in mode-line
+(column-number-mode 1)
 
-  ;; Hook builtin Emacs minor-mode to only display line numbers in prog-mode
-  (add-hook 'prog-mode-hook 'display-line-numbers-mode)
+;; Hook builtin Emacs minor-mode to only display line numbers in prog-mode
+(add-hook 'prog-mode-hook 'display-line-numbers-mode)
+#+end_src
+
+* Formatting
+** Indentation Style
+
+Emacs comes with a default indentation style that is not
+desirable. Here, we define the indentation style for [[https://www.gnu.org/software/emacs/manual/html_node/ccmode/][CC Mode]] and set
+the basic offset to =4= (credit: [[https://stackoverflow.com/questions/37105356/change-tab-width-in-emacs][StackOverflow]]); [[https://www.emacswiki.org/emacs/IndentingC][emacswiki]] contains an
+example of the change.  Additionally, we modify the standard indent
+and tab behavior. Finally, TeX files ignores tabs, so we want to
+prevent using TAB to add multiple spaces when formatting a region
+[[[https://www.gnu.org/software/emacs/manual/html_node/eintr/Indent-Tabs-Mode.html][gnu.org]]]
+
+#+begin_src emacs-lisp
+(setq
+ c-default-style "linux"
+ c-basic-offset 4
+ tab-width 4)
+
+;; set indentation for enriched text
+(setq-default standard-indent 4)
+
+;; use tab for auto-complete selection
+(setq-default tab-always-indent 'complete)
+
+;; prevent extraneous tabs -- affects TeX
+(setq-default indent-tabs-mode nil)
+#+end_src
+
+** Line Wrapping
+
+#+begin_src emacs-lisp
+;; Builtin Emacs minor-mode wraps long text to next line
+(global-visual-line-mode 1)
+#+end_src
+
+** Tidy White Spaces
+
+The builtin =whitespace-mode= is useful for visualizing and
+automatically cleaning up white-spaces in our buffers. [[https://www.emacswiki.org/emacs/WhiteSpace][Emacswiki]]
+provides a nice overview of the settings.
+
+The ~whitespace-style~ variable specifies how blank white-spaces are
+visualized and the following are included in our configuration:
+  + face :: Enable all visualization via faces. Required for
+    visualization of many white-spaces listed below.
+  + trailing :: Trailing blanks are visualized via faces.
+  + lines-tail :: Columns beyond ~whitespace-line-column~ are highlighted
+    via faces (must exclude =lines= in our configuration).
+  + empty :: Empty lines at beginning/end of buffer are visualized.
+  + indentation::space :: TABs at beginning of lines are visualized.
+  + space-before-tab::tab :: SPACEs before TAB are visualized.
+
+#+begin_src emacs-lisp
+;; Builtin Emacs variable highlights empty lines
+(setq indicate-empty-lines t)
+
+;; Visualize whitespace and remove on cleanup
+(use-package whitespace
+  :hook ((prog-mode . whitespace-mode)
+         (before-save . whitespace-cleanup))
+  :custom
+  (whitespace-line-column 79)
+  (whitespace-style '(face trailing lines-tail empty
+                           indentation::space space-before-tab::tab))
+  :config
+  ;; Turn off global whitespace mode
+  (global-whitespace-mode 0))
+#+end_src
+
+** Naming Convention
+
+#+begin_src emacs-lisp
+;; Unique buffers of identical files denoted with parent directory name
+(setq uniquify-buffer-name-style 'forward)
+
+;; Change frame title to buffer name
+(setq frame-title-format
+      '("Emacs: " (:eval (if (buffer-file-name)
+                             (abbreviate-file-name (buffer-file-name)) "%b"))))
+#+end_src
+
+** Overwrite Active Region
+
+#+begin_src emacs-lisp
+;; Builtin Emacs minor-mode overwrites active region when typing/pasting
+(delete-selection-mode 1)
+#+end_src
+
+** Delimiters
+
+#+begin_src emacs-lisp
+;; Builtin Emacs mode inserts closing delimiter upon typing an open delimiter
+(electric-pair-mode 1)
+
+;; Builtin Emacs mode highlights matching delimiter pairs
+(show-paren-mode 1)
+(setq-default show-paren-style 'parenthesis ;; Highlight delimiters, not contents
+              show-paren-when-point-in-periphery t) ;; Highlight even if ws present
 #+end_src
 
 * Behavior
 ** Killing Buffers
 
 #+begin_src emacs-lisp
-  ;; Do not ask if I want to kill a buffer (C-x C-k)
-  (setq kill-buffer-query-functions nil)
+;; Do not ask if I want to kill a buffer (C-x C-k)
+(setq kill-buffer-query-functions nil)
 
-  ;; Kill current buffer instead of selecting it from minibuffer
-  (global-set-key (kbd "C-x M-k") 'kill-current-buffer)
+;; Kill current buffer instead of selecting it from minibuffer
+(global-set-key (kbd "C-x M-k") 'kill-current-buffer)
 #+end_src
 
 * Mini-Buffer
@@ -342,14 +441,14 @@ the ~:init~ section of =use-package= such that the mode gets enabled
 right away. Note that this forces loading the package.
 
 #+begin_src emacs-lisp
-  ;; Mini-buffer completion
-  (use-package vertico
-    :init (vertico-mode 1)
-    :custom (vertico-cycle t "Cyle to top of list"))
+;; Mini-buffer completion
+(use-package vertico
+  :init (vertico-mode 1)
+  :custom (vertico-cycle t "Cyle to top of list"))
 
-  ;; Save minibuffer history for 'Vertico'
-  (use-package savehist
-    :init (savehist-mode 1))
+;; Save minibuffer history for 'Vertico'
+(use-package savehist
+  :init (savehist-mode 1))
 #+end_src
 
 ** Marginalia
@@ -359,16 +458,16 @@ mini-buffer completions. For example, file permissions/size/timestamp
 data when searching for a file using ~M-x find-file~.
 
 #+begin_src emacs-lisp
-  ;; Provides additional data to mini-buffer completion
-  (use-package marginalia
-    ;; Same reason as 'vertico' and 'savehist'
-    :init (marginalia-mode 1))
+;; Provides additional data to mini-buffer completion
+(use-package marginalia
+  ;; Same reason as 'vertico' and 'savehist'
+  :init (marginalia-mode 1))
 
-  ;; Add nerd-icons to mini-buffer marginalia
-  (use-package nerd-icons-completion
-    :after (marginalia nerd-icons)
-    :hook (marginalia-mode . nerd-icons-completion-marginalia-setup)
-    :config (nerd-icons-completion-mode))
+;; Add nerd-icons to mini-buffer marginalia
+(use-package nerd-icons-completion
+  :after (marginalia nerd-icons)
+  :hook (marginalia-mode . nerd-icons-completion-marginalia-setup)
+  :config (nerd-icons-completion-mode))
 #+end_src
 
 ** Orderless
@@ -381,12 +480,11 @@ enter the parent directory, then the sub-directory, etc etc.
 *N.B.* Below is copied directly from [[https://github.com/oantolin/orderless/tree/master][github/orderless]]
 
 #+begin_src emacs-lisp
-  (use-package orderless
-    :custom
-    (completion-styles '(orderless basic))
-    (completion-category-defaults nil)
-    (completion-category-overrides '((file (styles partial-completion)))))
-
+(use-package orderless
+  :custom
+  (completion-styles '(orderless basic))
+  (completion-category-defaults nil)
+  (completion-category-overrides '((file (styles partial-completion)))))
 #+end_src
 
 ** TODO Consult
@@ -526,15 +624,15 @@ prompt when using ~completing-read-multiple~ which can be useful for
 visually distinguishing prompts or results.
 
 #+begin_src emacs-lisp
-  (defun crm-indicator (args)
-    "Add indicator to completion promp when using 'completing-read-multiple'"
-    (cons (format "[CRM%s] %s"
-		  (replace-regexp-in-string
-		   "\\`\\[.*?]\\*\\|\\[.*?]\\*\\'" ""
-		   crm-separator)
-		  (car args))
-	  (cdr args)))
-  (advice-add #'completing-read-multiple :filter-args #'crm-indicator)
+(defun crm-indicator (args)
+  "Add indicator to completion promp when using 'completing-read-multiple'"
+  (cons (format "[CRM%s] %s"
+		(replace-regexp-in-string
+		 "\\`\\[.*?]\\*\\|\\[.*?]\\*\\'" ""
+		 crm-separator)
+		(car args))
+	(cdr args)))
+(advice-add #'completing-read-multiple :filter-args #'crm-indicator)
 #+end_src
 
 For example, calling the example function ~test-crm-indicator~ indicates
@@ -542,11 +640,11 @@ that selecting multiple options is both possible using a
 comma-separator. *N.B.* src-block not tangled to configuration file.
 
 #+begin_src emacs-lisp :tangle no
-  (defun test-crm-indicator ()
-    "A custom function using completing-read-multiple."
-    (interactive)
-    (let ((choices '("Option A" "Option B" "Option C")))
-      (completing-read-multiple "Choose options: " choices)))
+(defun test-crm-indicator ()
+  "A custom function using completing-read-multiple."
+  (interactive)
+  (let ((choices '("Option A" "Option B" "Option C")))
+    (completing-read-multiple "Choose options: " choices)))
 #+end_src
 
 *** Make Minibuffer Prompt Read-Only
@@ -559,9 +657,10 @@ selected or modified by the cursor. This can be useful for creating a
 visually distinct and non-editable minibuffer prompt.
 
 #+begin_src emacs-lisp
-  (setq minibuffer-prompt-properties
-	'(read-only t cursor-intangible t face minibuffer-prompt))
-  (add-hook 'minibuffer-setup-hook #'cursor-intangible-mode)
+(setq minibuffer-prompt-properties
+      '(read-only t cursor-intangible t face minibuffer-prompt))
+
+(add-hook 'minibuffer-setup-hook #'cursor-intangible-mode)
 #+end_src
 
 For example if ~(setq minibuffer-prompt-properties nil)~ and we call
@@ -594,56 +693,56 @@ cursor is somewhere else. Lets change that.
 ** General Settings
 
 #+begin_src emacs-lisp
-  (use-package org
-    :demand t
-    :hook (;; Refresh inline images after executing scr-block
-	   (org-babel-after-execute . (lambda () (org-display-inline-images nil t)))
-	   ;; Cleanup whitespace when entering/exiting org-edit-src buffer
-	   (org-src-mode . whitespace-cleanup))
+(use-package org
+  :demand t
+  :hook (;; Refresh inline images after executing scr-block
+	 (org-babel-after-execute . (lambda () (org-display-inline-images nil t)))
+	 ;; Cleanup whitespace when entering/exiting org-edit-src buffer
+	 (org-src-mode . whitespace-cleanup))
 
-    :custom
-    ;; Org-Mode structure settings
-    (org-hide-leading-stars t "Use org-modern bullets for header level")
-    (org-startup-folded t     "Fold headers by default")
-    (org-startup-indented t   "Align text vertically with header level")
-    (org-adapt-indentation t  "Indent w.r.t. org-header level")
+  :custom
+  ;; Org-Mode structure settings
+  (org-hide-leading-stars t "Use org-modern bullets for header level")
+  (org-startup-folded t     "Fold headers by default")
+  (org-startup-indented t   "Align text vertically with header level")
+  (org-adapt-indentation t  "Indent w.r.t. org-header level")
 
-    ;; Text behavior settings
-    (org-hide-emphasis-markers t "Remove =STR= emphasis markers")
-    (org-special-ctrl-a/e t      "C-a/e jump to start/end of headline text")
+  ;; Text behavior settings
+  (org-hide-emphasis-markers t "Remove =STR= emphasis markers")
+  (org-special-ctrl-a/e t      "C-a/e jump to start/end of headline text")
 
-    ;; Babel / Source code settings
-    (org-confirm-babel-evaluate nil "Do not confirm src-block evaluation")
-    (org-src-window-setup 'current-window "Use current buffer for src-context")
-    (org-src-preserve-indentation t "Align src code with leftmost column")
-    (org-src-ask-before-returning-to-edit-buffer t "Turn off prompt before edit buffer")
+  ;; Babel / Source code settings
+  (org-confirm-babel-evaluate nil "Do not confirm src-block evaluation")
+  (org-src-window-setup 'current-window "Use current buffer for src-context")
+  (org-src-preserve-indentation t "Align src code with leftmost column")
+  (org-src-ask-before-returning-to-edit-buffer t "Turn off prompt before edit buffer")
 
-    ;; Figure settings
-    (org-display-remote-inline-images 'cache "Allow inline display of remote images")
-    (org-startup-with-inline-images t "Include images when opening org-file")
+  ;; Figure settings
+  (org-display-remote-inline-images 'cache "Allow inline display of remote images")
+  (org-startup-with-inline-images t "Include images when opening org-file")
 
-    ;; File path settings
-    (org-link-file-path-type 'relative "Use relative links for org-insert-link")
+  ;; File path settings
+  (org-link-file-path-type 'relative "Use relative links for org-insert-link")
 
-    ;; Misc. settings
-    ;; Cache error -- https://emacs.stackexchange.com/a/42014
-    (org-element-use-cache nil "Turn off due to frequent error")
-    (org-ellipsis "▾"          "Indicator for collapsed header")
+  ;; Misc. settings
+  ;; Cache error -- https://emacs.stackexchange.com/a/42014
+  (org-element-use-cache nil "Turn off due to frequent error")
+  (org-ellipsis "▾"          "Indicator for collapsed header")
 
-    ;; ? speed-key opens Speed Keys help.
-    (org-use-speed-commands
-     ;; If non-nil, 'org-use-speed-commands' allows efficient
-     ;; navigation of headline text when cursor is on leading
-     ;; star. Custom function allows use of Speed keys if on ANY
-     ;; stars.
-     (lambda ()
-       (and (looking-at org-outline-regexp)
-	    (looking-back "^\**"))))
+  ;; ? speed-key opens Speed Keys help.
+  (org-use-speed-commands
+   ;; If non-nil, 'org-use-speed-commands' allows efficient
+   ;; navigation of headline text when cursor is on leading
+   ;; star. Custom function allows use of Speed keys if on ANY
+   ;; stars.
+   (lambda ()
+     (and (looking-at org-outline-regexp)
+	  (looking-back "^\**"))))
 
-    :config
-    ;; Improved vertical scrolling when images are present
-    (use-package iscroll
-      :hook (org-mode)))
+  :config
+  ;; Improved vertical scrolling when images are present
+  (use-package iscroll
+    :hook (org-mode)))
 #+end_src
 
 ** Org-Modern
@@ -652,14 +751,14 @@ The =org-modern= package improves the visuals of org-mode by styling the
 headlines, keywords, tables, and source-blocks.
 
 #+begin_src emacs-lisp
-  ;; Improve visuals by styling headlines, keywords, tables, etc
-  (use-package org-modern
-    :after org
-    :commands (org-modern-mode org-modern-agenda)
-    :hook ((org-mode                 . org-modern-mode)
-	   (org-agenda-finalize-hook . org-modern-agenda))
-    :custom((org-modern-block-fringe 5)
-	    (org-modern-star '("◉" "○" "●" "○" "●" "○" "●"))))
+;; Improve visuals by styling headlines, keywords, tables, etc
+(use-package org-modern
+  :after org
+  :commands (org-modern-mode org-modern-agenda)
+  :hook ((org-mode                 . org-modern-mode)
+	 (org-agenda-finalize-hook . org-modern-agenda))
+  :custom((org-modern-block-fringe 5)
+	  (org-modern-star '("◉" "○" "●" "○" "●" "○" "●"))))
 #+end_src
 
 ** Org-Appear
@@ -668,40 +767,40 @@ The =org-appear= reveals hidden emphasis markers only if the point is
 inside the markers. We also extend this functionality to LaTeX.
 
 #+begin_src emacs-lisp
-  (use-package org-appear
-    :hook (org-mode)
-    :custom (org-appear-inside-latex t))
+(use-package org-appear
+  :hook (org-mode)
+  :custom (org-appear-inside-latex t))
 #+end_src
 
 * Version Control
 
 #+begin_src emacs-lisp
-  (use-package magit
-    :bind ("C-x g" . magit-status)
-    :diminish magit-minor-mode
-    :hook (git-commit-mode . (lambda () (setq fill-column 72)))
-    :mode ("/\\.gitmodules\\'" . conf-mode)
-    :custom
-    ;; hide ^M chars at the end of the line when viewing diffs
-    (magit-diff-hide-trailing-cr-characters t)
+(use-package magit
+  :bind ("C-x g" . magit-status)
+  :diminish magit-minor-mode
+  :hook (git-commit-mode . (lambda () (setq fill-column 72)))
+  :mode ("/\\.gitmodules\\'" . conf-mode)
+  :custom
+  ;; hide ^M chars at the end of the line when viewing diffs
+  (magit-diff-hide-trailing-cr-characters t)
 
-    ;; Limit legth of commit message summary
-    (git-commit-summary-max-length 50)
+  ;; Limit legth of commit message summary
+  (git-commit-summary-max-length 50)
 
-    ;; Open status buffer in same buffer
-    (magit-display-buffer-function 'magit-display-buffer-same-window-except-diff-v1))
+  ;; Open status buffer in same buffer
+  (magit-display-buffer-function 'magit-display-buffer-same-window-except-diff-v1))
 
-  (use-package git-gutter
-    :hook (prog-mode org-mode)
-    :bind (("C-x P" . git-gutter:previous-hunk)
-	   ("C-x N" . git-gutter:next-hunk)
-	   ("C-x G" . git-gutter:popup-hunk))
-      :config
-      ;; Must include if 'linum-mode' activated (common in 'prog-mode')
-      ;; because 'git-gutter' does not work with 'linum-mode'.
-      (use-package git-gutter-fringe
-	:commands git-gutter-mode
-	:config (global-git-gutter-mode)))
+(use-package git-gutter
+  :hook (prog-mode org-mode)
+  :bind (("C-x P" . git-gutter:previous-hunk)
+	 ("C-x N" . git-gutter:next-hunk)
+	 ("C-x G" . git-gutter:popup-hunk))
+  :config
+  ;; Must include if 'linum-mode' activated (common in 'prog-mode')
+  ;; because 'git-gutter' does not work with 'linum-mode'.
+  (use-package git-gutter-fringe
+    :commands git-gutter-mode
+    :config (global-git-gutter-mode)))
 #+end_src
 
 * Conclusion
@@ -709,6 +808,6 @@ inside the markers. We also extend this functionality to LaTeX.
 Ta-dah!
 
 #+begin_src emacs-lisp
-  ;;; init.el ends here
+;;; init.el ends here
 #+end_src
 
