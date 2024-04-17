@@ -205,6 +205,9 @@
 ;; Kill current buffer instead of selecting it from minibuffer
 (global-set-key (kbd "C-x M-k") 'kill-current-buffer)
 
+;; Enable recursive minibuffers
+(setq enable-recursive-minibuffers t)
+
 ;; Mini-buffer completion
 (use-package vertico
   :init (vertico-mode 1)

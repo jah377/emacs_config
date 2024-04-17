@@ -424,8 +424,14 @@ visualized and the following are included in our configuration:
 ;; Kill current buffer instead of selecting it from minibuffer
 (global-set-key (kbd "C-x M-k") 'kill-current-buffer)
 #+end_src
-
 * Mini-Buffer
+** General Mini-Buffer Behavior
+
+#+begin_src emacs-lisp
+;; Enable recursive minibuffers
+(setq enable-recursive-minibuffers t)
+#+end_src
+
 ** Vertico
 
 Out of the box, Emacs requires the user to iteratively probe
