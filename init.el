@@ -154,20 +154,6 @@
   ;; Kill current buffer instead of selecting it from minibuffer
   (global-set-key (kbd "C-x M-k") 'kill-current-buffer)
 
-  (defun crm-indicator (args)
-    "Add indicator to completion promp when using 'completing-read-multiple'"
-    (cons (format "[CRM%s] %s"
-		  (replace-regexp-in-string
-		   "\\`\\[.*?]\\*\\|\\[.*?]\\*\\'" ""
-		   crm-separator)
-		  (car args))
-	  (cdr args)))
-  (advice-add #'completing-read-multiple :filter-args #'crm-indicator)
-
-  (setq minibuffer-prompt-properties
-	'(read-only t cursor-intangible t face minibuffer-prompt))
-  (add-hook 'minibuffer-setup-hook #'cursor-intangible-mode)
-
   ;; Mini-buffer completion
   (use-package vertico
     :init (vertico-mode 1)
@@ -309,6 +295,31 @@
   ;;;; 5. No project support
   ;; (setq consult-project-function nil)
 )
+
+  (defun crm-indicator (args)
+    "Add indicator to completion promp when using 'completing-read-multiple'"
+    (cons (format "[CRM%s] %s"
+		  (replace-regexp-in-string
+		   "\\`\\[.*?]\\*\\|\\[.*?]\\*\\'" ""
+		   crm-separator)
+		  (car args))
+	  (cdr args)))
+  (advice-add #'completing-read-multiple :filter-args #'crm-indicator)
+
+  (setq minibuffer-prompt-properties
+	'(read-only t cursor-intangible t face minibuffer-prompt))
+  (add-hook 'minibuffer-setup-hook #'cursor-intangible-mode)
+
+;; Closes minibuffer regardless of point location
+(advice-add 'keyboard-quit :before (lambda ()
+				     (when (active-minibuffer-window)
+				       (abort-recursive-edit))))
+
+(defun jh/jump-to-minibuffer ()
+  "Move point to minibuffer."
+  (interactive)
+  (when-let ((minibuffer-window (active-minibuffer-window)))
+    (select-window minibuffer-window)))
 
   (use-package org
     :demand t
