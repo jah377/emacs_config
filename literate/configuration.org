@@ -1,6 +1,5 @@
 #+TITLE: Literate Emacs Configuration
-#+AUTHOR: Jonathan A. Harris | Machine Learning Programs
-#+EMAIL: jonathan.harris@mlprograms.com
+#+AUTHOR: Jonathan A. Harris, MSc.
 #+DATE: Monday, April 15, 2024
 #+PROPERTY: header-args:emacs-lisp :results silent :tangle ../init.el
 
@@ -39,10 +38,10 @@ packages. Here, we would like to address the following:
   manage a program's memory which, in turn, reduces the potential for
   memory-related bugs. We attempt to reduce startup times by changing
   two variables:
-  
+
   - gc-cons-threshold :: Maximize threshold used to trigger GC. This
     is employed by Doom-Emacs [[[https://github.com/doomemacs/doomemacs/blob/master/early-init.el][doomemacs/early-init.el]]].
-    
+
   - gc-cons-percentage :: Trigger GC based on %memory allocation;
     ignore if less than =gc-cons-threshold=.
 
@@ -121,12 +120,12 @@ necessary for the configuration.
 ;; Initialize package resources
 (setq package-archives
       '(("gnu elpa"  . "https://elpa.gnu.org/packages/")
-	("melpa"     . "https://melpa.org/packages/")
-	("nongnu"    . "https://elpa.nongnu.org/nongnu/"))
+        ("melpa"     . "https://melpa.org/packages/")
+        ("nongnu"    . "https://elpa.nongnu.org/nongnu/"))
       package-archive-priorities
       '(("melpa"    . 6)
-	("gnu elpa" . 5)
-	("nongnu"   . 4)))
+        ("gnu elpa" . 5)
+        ("nongnu"   . 4)))
 
 ;; Is this still necessary since 'use-package' now builtin?
 (unless (package-installed-p 'use-package)
@@ -162,9 +161,9 @@ necessary for the configuration.
   (after-init . garbage-collect)
   ;; Reset GC params after loading startup (after init-hook)
   (emacs-startup . (lambda ()
-		     (setq gc-cons-percentage 0.1
-			   gcmh-high-cons-threshold (* 32 1024 1024)
-			   gcmh-idle-delay 30))))
+                     (setq gc-cons-percentage 0.1
+                           gcmh-high-cons-threshold (* 32 1024 1024)
+                           gcmh-idle-delay 30))))
 #+end_src
 
 * Visuals
@@ -216,22 +215,22 @@ doing the following:
 
 #+begin_src emacs-lisp
 (set-face-attribute 'default nil
-		    :font "JetBrains Mono"
-		    :height 100
-		    :weight 'medium)
+                    :font "JetBrains Mono"
+                    :height 100
+                    :weight 'medium)
 
 
 ;; Set the fixed pitch face
 (set-face-attribute 'fixed-pitch nil
-		    :font "JetBrains Mono"
-		    :height 100
-		    :weight 'medium)
+                    :font "JetBrains Mono"
+                    :height 100
+                    :weight 'medium)
 
 ;; Set the variable pitch face
 (set-face-attribute 'variable-pitch nil
-		    :font "JetBrains Mono"
-		    :height 100
-		    :weight 'medium)
+                    :font "JetBrains Mono"
+                    :height 100
+                    :weight 'medium)
 #+end_src
 
 ** Icons
@@ -241,7 +240,7 @@ doing the following:
   :config
   ;; Download nerd-icons if directory not found
   (unless (car (file-expand-wildcards
-		(concat user-emacs-directory "elpa/nerd-icons-*")))
+                (concat user-emacs-directory "elpa/nerd-icons-*")))
     (nerd-icons-install-fonts t)))
 #+end_src
 
@@ -414,7 +413,7 @@ visualized and the following are included in our configuration:
 ;; Builtin Emacs mode highlights matching delimiter pairs
 (show-paren-mode 1)
 (setq-default show-paren-style 'parenthesis ;; Highlight delimiters, not contents
-	      show-paren-when-point-in-periphery t) ;; Highlight even if ws present
+              show-paren-when-point-in-periphery t) ;; Highlight even if ws present
 #+end_src
 
 * Behavior
@@ -522,57 +521,57 @@ capabilities.
 #+begin_src emacs-lisp
 (use-package consult
   :bind (;; C-c bindings in `mode-specific-map'
-	 ("C-c M-x" . consult-mode-command)
-	 ("C-c h" . consult-history)
-	 ("C-c k" . consult-kmacro)
-	 ("C-c m" . consult-man)
-	 ("C-c i" . consult-info)
-	 ([remap Info-search] . consult-info)
-	 ;; C-x bindings in `ctl-x-map'
-	 ("C-x M-:" . consult-complex-command)     ;; orig. repeat-complex-command
-	 ("C-x b" . consult-buffer)                ;; orig. switch-to-buffer
-	 ("C-x 4 b" . consult-buffer-other-window) ;; orig. switch-to-buffer-other-window
-	 ("C-x 5 b" . consult-buffer-other-frame)  ;; orig. switch-to-buffer-other-frame
-	 ("C-x t b" . consult-buffer-other-tab)    ;; orig. switch-to-buffer-other-tab
-	 ("C-x r b" . consult-bookmark)            ;; orig. bookmark-jump
-	 ("C-x p b" . consult-project-buffer)      ;; orig. project-switch-to-buffer
-	 ;; Custom M-# bindings for fast register access
-	 ("M-#" . consult-register-load)
-	 ("M-'" . consult-register-store)          ;; orig. abbrev-prefix-mark (unrelated)
-	 ("C-M-#" . consult-register)
-	 ;; Other custom bindings
-	 ("M-y" . consult-yank-pop)                ;; orig. yank-pop
-	 ;; M-g bindings in `goto-map'
-	 ("M-g e" . consult-compile-error)
-	 ("M-g f" . consult-flymake)               ;; Alternative: consult-flycheck
-	 ("M-g g" . consult-goto-line)             ;; orig. goto-line
-	 ("M-g M-g" . consult-goto-line)           ;; orig. goto-line
-	 ("M-g o" . consult-outline)               ;; Alternative: consult-org-heading
-	 ("M-g m" . consult-mark)
-	 ("M-g k" . consult-global-mark)
-	 ("M-g i" . consult-imenu)
-	 ("M-g I" . consult-imenu-multi)
-	 ;; M-s bindings in `search-map'
-	 ("M-s d" . consult-find)                  ;; Alternative: consult-fd
-	 ("M-s c" . consult-locate)
-	 ("M-s g" . consult-grep)
-	 ("M-s G" . consult-git-grep)
-	 ("M-s r" . consult-ripgrep)
-	 ("M-s l" . consult-line)
-	 ("M-s L" . consult-line-multi)
-	 ("M-s k" . consult-keep-lines)
-	 ("M-s u" . consult-focus-lines)
-	 ;; Isearch integration
-	 ("M-s e" . consult-isearch-history)
-	 :map isearch-mode-map
-	 ("M-e" . consult-isearch-history)         ;; orig. isearch-edit-string
-	 ("M-s e" . consult-isearch-history)       ;; orig. isearch-edit-string
-	 ("M-s l" . consult-line)                  ;; needed by consult-line to detect isearch
-	 ("M-s L" . consult-line-multi)            ;; needed by consult-line to detect isearch
-	 ;; Minibuffer history
-	 :map minibuffer-local-map
-	 ("M-s" . consult-history)                 ;; orig. next-matching-history-element
-	 ("M-r" . consult-history))                ;; orig. previous-matching-history-element
+         ("C-c M-x" . consult-mode-command)
+         ("C-c h" . consult-history)
+         ("C-c k" . consult-kmacro)
+         ("C-c m" . consult-man)
+         ("C-c i" . consult-info)
+         ([remap Info-search] . consult-info)
+         ;; C-x bindings in `ctl-x-map'
+         ("C-x M-:" . consult-complex-command)     ;; orig. repeat-complex-command
+         ("C-x b" . consult-buffer)                ;; orig. switch-to-buffer
+         ("C-x 4 b" . consult-buffer-other-window) ;; orig. switch-to-buffer-other-window
+         ("C-x 5 b" . consult-buffer-other-frame)  ;; orig. switch-to-buffer-other-frame
+         ("C-x t b" . consult-buffer-other-tab)    ;; orig. switch-to-buffer-other-tab
+         ("C-x r b" . consult-bookmark)            ;; orig. bookmark-jump
+         ("C-x p b" . consult-project-buffer)      ;; orig. project-switch-to-buffer
+         ;; Custom M-# bindings for fast register access
+         ("M-#" . consult-register-load)
+         ("M-'" . consult-register-store)          ;; orig. abbrev-prefix-mark (unrelated)
+         ("C-M-#" . consult-register)
+         ;; Other custom bindings
+         ("M-y" . consult-yank-pop)                ;; orig. yank-pop
+         ;; M-g bindings in `goto-map'
+         ("M-g e" . consult-compile-error)
+         ("M-g f" . consult-flymake)               ;; Alternative: consult-flycheck
+         ("M-g g" . consult-goto-line)             ;; orig. goto-line
+         ("M-g M-g" . consult-goto-line)           ;; orig. goto-line
+         ("M-g o" . consult-outline)               ;; Alternative: consult-org-heading
+         ("M-g m" . consult-mark)
+         ("M-g k" . consult-global-mark)
+         ("M-g i" . consult-imenu)
+         ("M-g I" . consult-imenu-multi)
+         ;; M-s bindings in `search-map'
+         ("M-s d" . consult-find)                  ;; Alternative: consult-fd
+         ("M-s c" . consult-locate)
+         ("M-s g" . consult-grep)
+         ("M-s G" . consult-git-grep)
+         ("M-s r" . consult-ripgrep)
+         ("M-s l" . consult-line)
+         ("M-s L" . consult-line-multi)
+         ("M-s k" . consult-keep-lines)
+         ("M-s u" . consult-focus-lines)
+         ;; Isearch integration
+         ("M-s e" . consult-isearch-history)
+         :map isearch-mode-map
+         ("M-e" . consult-isearch-history)         ;; orig. isearch-edit-string
+         ("M-s e" . consult-isearch-history)       ;; orig. isearch-edit-string
+         ("M-s l" . consult-line)                  ;; needed by consult-line to detect isearch
+         ("M-s L" . consult-line-multi)            ;; needed by consult-line to detect isearch
+         ;; Minibuffer history
+         :map minibuffer-local-map
+         ("M-s" . consult-history)                 ;; orig. next-matching-history-element
+         ("M-r" . consult-history))                ;; orig. previous-matching-history-element
 
   ;; Enable automatic preview at point in the *Completions* buffer. This is
   ;; relevant when you use the default completion UI.
@@ -583,7 +582,7 @@ capabilities.
   ;; preview for `consult-register', `consult-register-load',
   ;; `consult-register-store' and the Emacs built-ins.
   (setq register-preview-delay 0.5
-	register-preview-function #'consult-register-format)
+        register-preview-function #'consult-register-format)
 
   ;; Optionally tweak the register preview window.
   ;; This adds thin lines, sorting and hides the mode line of the window.
@@ -591,7 +590,7 @@ capabilities.
 
   ;; Use Consult to select xref locations with preview
   (setq xref-show-xrefs-function #'consult-xref
-	xref-show-definitions-function #'consult-xref)
+        xref-show-definitions-function #'consult-xref)
 
   ;; Configure other variables and modes in the :config section,
   ;; after lazily loading the package.
@@ -649,11 +648,11 @@ visually distinguishing prompts or results.
 (defun crm-indicator (args)
   "Add indicator to completion promp when using 'completing-read-multiple'"
   (cons (format "[CRM%s] %s"
-		(replace-regexp-in-string
-		 "\\`\\[.*?]\\*\\|\\[.*?]\\*\\'" ""
-		 crm-separator)
-		(car args))
-	(cdr args)))
+                (replace-regexp-in-string
+                 "\\`\\[.*?]\\*\\|\\[.*?]\\*\\'" ""
+                 crm-separator)
+                (car args))
+        (cdr args)))
 (advice-add #'completing-read-multiple :filter-args #'crm-indicator)
 #+end_src
 
@@ -697,8 +696,8 @@ cursor is somewhere else. Lets change that.
 #+begin_src emacs-lisp
 ;; Closes minibuffer regardless of point location
 (advice-add 'keyboard-quit :before (lambda ()
-				     (when (active-minibuffer-window)
-				       (abort-recursive-edit))))
+                                     (when (active-minibuffer-window)
+                                       (abort-recursive-edit))))
 #+end_src
 
 *** Jump to Minibuffer
@@ -718,9 +717,9 @@ cursor is somewhere else. Lets change that.
 (use-package org
   :demand t
   :hook (;; Refresh inline images after executing scr-block
-	 (org-babel-after-execute . (lambda () (org-display-inline-images nil t)))
-	 ;; Cleanup whitespace when entering/exiting org-edit-src buffer
-	 (org-src-mode . whitespace-cleanup))
+         (org-babel-after-execute . (lambda () (org-display-inline-images nil t)))
+         ;; Cleanup whitespace when entering/exiting org-edit-src buffer
+         (org-src-mode . whitespace-cleanup))
 
   :custom
   ;; Org-Mode structure settings
@@ -759,7 +758,7 @@ cursor is somewhere else. Lets change that.
    ;; stars.
    (lambda ()
      (and (looking-at org-outline-regexp)
-	  (looking-back "^\**"))))
+          (looking-back "^\**"))))
 
   :config
   ;; Improved vertical scrolling when images are present
@@ -778,9 +777,9 @@ headlines, keywords, tables, and source-blocks.
   :after org
   :commands (org-modern-mode org-modern-agenda)
   :hook ((org-mode                 . org-modern-mode)
-	 (org-agenda-finalize-hook . org-modern-agenda))
+         (org-agenda-finalize-hook . org-modern-agenda))
   :custom((org-modern-block-fringe 5)
-	  (org-modern-star '("◉" "○" "●" "○" "●" "○" "●"))))
+          (org-modern-star '("◉" "○" "●" "○" "●" "○" "●"))))
 #+end_src
 
 ** Org-Appear
@@ -815,8 +814,8 @@ inside the markers. We also extend this functionality to LaTeX.
 (use-package git-gutter
   :hook (prog-mode org-mode)
   :bind (("C-x P" . git-gutter:previous-hunk)
-	 ("C-x N" . git-gutter:next-hunk)
-	 ("C-x G" . git-gutter:popup-hunk))
+         ("C-x N" . git-gutter:next-hunk)
+         ("C-x G" . git-gutter:popup-hunk))
   :config
   ;; Must include if 'linum-mode' activated (common in 'prog-mode')
   ;; because 'git-gutter' does not work with 'linum-mode'.
@@ -832,4 +831,3 @@ Ta-dah!
 #+begin_src emacs-lisp
 ;;; init.el ends here
 #+end_src
-
