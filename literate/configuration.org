@@ -439,11 +439,12 @@ visualized and the following are included in our configuration:
 
 Out of the box, Emacs requires the user to iteratively probe
 =*Completion*= buffer as they blindly type the name of the desired
-buffer or file-path when calling ~switch-to-buffer~ or ~file-file~,
-for example. _Annoying_. Alternatively, the =Vertico= package displays
-these results directly in the mini-buffer. The separate package
-=Savehist= saves the mini-buffer history so previous completions are
-more quickly available.
+buffer or file-path when calling ~switch-to-buffer~ or ~file-file~, for
+example. _Annoying_. Alternatively, the =Vertico= package displays these
+results directly in the mini-buffer and additional functionality is
+provided by =Vertico-Directory=. The separate package =Savehist= saves the
+mini-buffer history so previous completions are more quickly
+available.
 
 *N.B.* The author of =Vertico= recommends activating the packages in
 the ~:init~ section of =use-package= such that the mode gets enabled
@@ -458,6 +459,18 @@ right away. Note that this forces loading the package.
 ;; Save minibuffer history for 'Vertico'
 (use-package savehist
   :init (savehist-mode 1))
+
+;; Configure directory extension.
+(use-package vertico-directory
+  :after vertico
+  :ensure nil
+  ;; More convenient directory navigation commands
+  :bind (:map vertico-map
+              ("RET" . vertico-directory-enter)
+              ("DEL" . vertico-directory-delete-char)
+              ("M-DEL" . vertico-directory-delete-word))
+  ;; Tidy shadowed file names
+  :hook (rfn-eshadow-update-overlay . vertico-directory-tidy))
 #+end_src
 
 ** Marginalia
