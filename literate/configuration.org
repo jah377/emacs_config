@@ -824,6 +824,22 @@ inside the markers. We also extend this functionality to LaTeX.
     :config (global-git-gutter-mode)))
 #+end_src
 
+* Productivity
+** Yankpad
+
+The =Yankpad= package streamlines the mundane insertion of text
+snippets.
+
+#+begin_src emacs-lisp
+(use-package yankpad
+  :ensure t
+  :defer 10
+  :init (setq yankpad-file "~/.org/yankpad.org")
+  :config
+  ;; Always require user to provide snippet category before 'yankpad-insert'
+  (advice-add 'yankpad-insert :before (lambda () (setq yankpad-category nil))))
+#+end_src
+
 * Conclusion
 
 Ta-dah!

@@ -482,4 +482,12 @@
     :commands git-gutter-mode
     :config (global-git-gutter-mode)))
 
+(use-package yankpad
+  :ensure t
+  :defer 10
+  :init (setq yankpad-file "~/.org/yankpad.org")
+  :config
+  ;; Always require user to provide snippet category before 'yankpad-insert'
+  (advice-add 'yankpad-insert :before (lambda () (setq yankpad-category nil))))
+
 ;;; init.el ends here
