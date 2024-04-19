@@ -3,12 +3,12 @@
 ;; Initialize package resources
 (setq package-archives
       '(("gnu elpa"  . "https://elpa.gnu.org/packages/")
-	("melpa"     . "https://melpa.org/packages/")
-	("nongnu"    . "https://elpa.nongnu.org/nongnu/"))
+        ("melpa"     . "https://melpa.org/packages/")
+        ("nongnu"    . "https://elpa.nongnu.org/nongnu/"))
       package-archive-priorities
       '(("melpa"    . 6)
-	("gnu elpa" . 5)
-	("nongnu"   . 4)))
+        ("gnu elpa" . 5)
+        ("nongnu"   . 4)))
 
 ;; Is this still necessary since 'use-package' now builtin?
 (unless (package-installed-p 'use-package)
@@ -44,9 +44,9 @@
   (after-init . garbage-collect)
   ;; Reset GC params after loading startup (after init-hook)
   (emacs-startup . (lambda ()
-		     (setq gc-cons-percentage 0.1
-			   gcmh-high-cons-threshold (* 32 1024 1024)
-			   gcmh-idle-delay 30))))
+                     (setq gc-cons-percentage 0.1
+                           gcmh-high-cons-threshold (* 32 1024 1024)
+                           gcmh-idle-delay 30))))
 
 ;; Disable theme before loading to avoid funkiness
 (defadvice load-theme (before disable-themes-first activate)
@@ -79,28 +79,28 @@
 (add-hook 'after-init-hook (lambda () (jh/dark)))
 
 (set-face-attribute 'default nil
-		    :font "JetBrains Mono"
-		    :height 100
-		    :weight 'medium)
+                    :font "JetBrains Mono"
+                    :height 100
+                    :weight 'medium)
 
 
 ;; Set the fixed pitch face
 (set-face-attribute 'fixed-pitch nil
-		    :font "JetBrains Mono"
-		    :height 100
-		    :weight 'medium)
+                    :font "JetBrains Mono"
+                    :height 100
+                    :weight 'medium)
 
 ;; Set the variable pitch face
 (set-face-attribute 'variable-pitch nil
-		    :font "JetBrains Mono"
-		    :height 100
-		    :weight 'medium)
+                    :font "JetBrains Mono"
+                    :height 100
+                    :weight 'medium)
 
 (use-package nerd-icons
   :config
   ;; Download nerd-icons if directory not found
   (unless (car (file-expand-wildcards
-		(concat user-emacs-directory "elpa/nerd-icons-*")))
+                (concat user-emacs-directory "elpa/nerd-icons-*")))
     (nerd-icons-install-fonts t)))
 
 (use-package doom-modeline
@@ -200,7 +200,7 @@
 ;; Builtin Emacs mode highlights matching delimiter pairs
 (show-paren-mode 1)
 (setq-default show-paren-style 'parenthesis ;; Highlight delimiters, not contents
-	      show-paren-when-point-in-periphery t) ;; Highlight even if ws present
+              show-paren-when-point-in-periphery t) ;; Highlight even if ws present
 
 ;; Do not ask if I want to kill a buffer (C-x C-k)
 (setq kill-buffer-query-functions nil)
@@ -251,57 +251,57 @@
 
 (use-package consult
   :bind (;; C-c bindings in `mode-specific-map'
-	 ("C-c M-x" . consult-mode-command)
-	 ("C-c h" . consult-history)
-	 ("C-c k" . consult-kmacro)
-	 ("C-c m" . consult-man)
-	 ("C-c i" . consult-info)
-	 ([remap Info-search] . consult-info)
-	 ;; C-x bindings in `ctl-x-map'
-	 ("C-x M-:" . consult-complex-command)     ;; orig. repeat-complex-command
-	 ("C-x b" . consult-buffer)                ;; orig. switch-to-buffer
-	 ("C-x 4 b" . consult-buffer-other-window) ;; orig. switch-to-buffer-other-window
-	 ("C-x 5 b" . consult-buffer-other-frame)  ;; orig. switch-to-buffer-other-frame
-	 ("C-x t b" . consult-buffer-other-tab)    ;; orig. switch-to-buffer-other-tab
-	 ("C-x r b" . consult-bookmark)            ;; orig. bookmark-jump
-	 ("C-x p b" . consult-project-buffer)      ;; orig. project-switch-to-buffer
-	 ;; Custom M-# bindings for fast register access
-	 ("M-#" . consult-register-load)
-	 ("M-'" . consult-register-store)          ;; orig. abbrev-prefix-mark (unrelated)
-	 ("C-M-#" . consult-register)
-	 ;; Other custom bindings
-	 ("M-y" . consult-yank-pop)                ;; orig. yank-pop
-	 ;; M-g bindings in `goto-map'
-	 ("M-g e" . consult-compile-error)
-	 ("M-g f" . consult-flymake)               ;; Alternative: consult-flycheck
-	 ("M-g g" . consult-goto-line)             ;; orig. goto-line
-	 ("M-g M-g" . consult-goto-line)           ;; orig. goto-line
-	 ("M-g o" . consult-outline)               ;; Alternative: consult-org-heading
-	 ("M-g m" . consult-mark)
-	 ("M-g k" . consult-global-mark)
-	 ("M-g i" . consult-imenu)
-	 ("M-g I" . consult-imenu-multi)
-	 ;; M-s bindings in `search-map'
-	 ("M-s d" . consult-find)                  ;; Alternative: consult-fd
-	 ("M-s c" . consult-locate)
-	 ("M-s g" . consult-grep)
-	 ("M-s G" . consult-git-grep)
-	 ("M-s r" . consult-ripgrep)
-	 ("M-s l" . consult-line)
-	 ("M-s L" . consult-line-multi)
-	 ("M-s k" . consult-keep-lines)
-	 ("M-s u" . consult-focus-lines)
-	 ;; Isearch integration
-	 ("M-s e" . consult-isearch-history)
-	 :map isearch-mode-map
-	 ("M-e" . consult-isearch-history)         ;; orig. isearch-edit-string
-	 ("M-s e" . consult-isearch-history)       ;; orig. isearch-edit-string
-	 ("M-s l" . consult-line)                  ;; needed by consult-line to detect isearch
-	 ("M-s L" . consult-line-multi)            ;; needed by consult-line to detect isearch
-	 ;; Minibuffer history
-	 :map minibuffer-local-map
-	 ("M-s" . consult-history)                 ;; orig. next-matching-history-element
-	 ("M-r" . consult-history))                ;; orig. previous-matching-history-element
+         ("C-c M-x" . consult-mode-command)
+         ("C-c h" . consult-history)
+         ("C-c k" . consult-kmacro)
+         ("C-c m" . consult-man)
+         ("C-c i" . consult-info)
+         ([remap Info-search] . consult-info)
+         ;; C-x bindings in `ctl-x-map'
+         ("C-x M-:" . consult-complex-command)     ;; orig. repeat-complex-command
+         ("C-x b" . consult-buffer)                ;; orig. switch-to-buffer
+         ("C-x 4 b" . consult-buffer-other-window) ;; orig. switch-to-buffer-other-window
+         ("C-x 5 b" . consult-buffer-other-frame)  ;; orig. switch-to-buffer-other-frame
+         ("C-x t b" . consult-buffer-other-tab)    ;; orig. switch-to-buffer-other-tab
+         ("C-x r b" . consult-bookmark)            ;; orig. bookmark-jump
+         ("C-x p b" . consult-project-buffer)      ;; orig. project-switch-to-buffer
+         ;; Custom M-# bindings for fast register access
+         ("M-#" . consult-register-load)
+         ("M-'" . consult-register-store)          ;; orig. abbrev-prefix-mark (unrelated)
+         ("C-M-#" . consult-register)
+         ;; Other custom bindings
+         ("M-y" . consult-yank-pop)                ;; orig. yank-pop
+         ;; M-g bindings in `goto-map'
+         ("M-g e" . consult-compile-error)
+         ("M-g f" . consult-flymake)               ;; Alternative: consult-flycheck
+         ("M-g g" . consult-goto-line)             ;; orig. goto-line
+         ("M-g M-g" . consult-goto-line)           ;; orig. goto-line
+         ("M-g o" . consult-outline)               ;; Alternative: consult-org-heading
+         ("M-g m" . consult-mark)
+         ("M-g k" . consult-global-mark)
+         ("M-g i" . consult-imenu)
+         ("M-g I" . consult-imenu-multi)
+         ;; M-s bindings in `search-map'
+         ("M-s d" . consult-find)                  ;; Alternative: consult-fd
+         ("M-s c" . consult-locate)
+         ("M-s g" . consult-grep)
+         ("M-s G" . consult-git-grep)
+         ("M-s r" . consult-ripgrep)
+         ("M-s l" . consult-line)
+         ("M-s L" . consult-line-multi)
+         ("M-s k" . consult-keep-lines)
+         ("M-s u" . consult-focus-lines)
+         ;; Isearch integration
+         ("M-s e" . consult-isearch-history)
+         :map isearch-mode-map
+         ("M-e" . consult-isearch-history)         ;; orig. isearch-edit-string
+         ("M-s e" . consult-isearch-history)       ;; orig. isearch-edit-string
+         ("M-s l" . consult-line)                  ;; needed by consult-line to detect isearch
+         ("M-s L" . consult-line-multi)            ;; needed by consult-line to detect isearch
+         ;; Minibuffer history
+         :map minibuffer-local-map
+         ("M-s" . consult-history)                 ;; orig. next-matching-history-element
+         ("M-r" . consult-history))                ;; orig. previous-matching-history-element
 
   ;; Enable automatic preview at point in the *Completions* buffer. This is
   ;; relevant when you use the default completion UI.
@@ -312,7 +312,7 @@
   ;; preview for `consult-register', `consult-register-load',
   ;; `consult-register-store' and the Emacs built-ins.
   (setq register-preview-delay 0.5
-	register-preview-function #'consult-register-format)
+        register-preview-function #'consult-register-format)
 
   ;; Optionally tweak the register preview window.
   ;; This adds thin lines, sorting and hides the mode line of the window.
@@ -320,7 +320,7 @@
 
   ;; Use Consult to select xref locations with preview
   (setq xref-show-xrefs-function #'consult-xref
-	xref-show-definitions-function #'consult-xref)
+        xref-show-definitions-function #'consult-xref)
 
   ;; Configure other variables and modes in the :config section,
   ;; after lazily loading the package.
@@ -368,11 +368,11 @@
 (defun crm-indicator (args)
   "Add indicator to completion promp when using 'completing-read-multiple'"
   (cons (format "[CRM%s] %s"
-		(replace-regexp-in-string
-		 "\\`\\[.*?]\\*\\|\\[.*?]\\*\\'" ""
-		 crm-separator)
-		(car args))
-	(cdr args)))
+                (replace-regexp-in-string
+                 "\\`\\[.*?]\\*\\|\\[.*?]\\*\\'" ""
+                 crm-separator)
+                (car args))
+        (cdr args)))
 (advice-add #'completing-read-multiple :filter-args #'crm-indicator)
 
 (setq minibuffer-prompt-properties
@@ -382,8 +382,8 @@
 
 ;; Closes minibuffer regardless of point location
 (advice-add 'keyboard-quit :before (lambda ()
-				     (when (active-minibuffer-window)
-				       (abort-recursive-edit))))
+                                     (when (active-minibuffer-window)
+                                       (abort-recursive-edit))))
 
 (defun jh/jump-to-minibuffer ()
   "Move point to minibuffer."
@@ -393,10 +393,11 @@
 
 (use-package org
   :demand t
+  :bind (("C-c l" . org-store-link))
   :hook (;; Refresh inline images after executing scr-block
-	 (org-babel-after-execute . (lambda () (org-display-inline-images nil t)))
-	 ;; Cleanup whitespace when entering/exiting org-edit-src buffer
-	 (org-src-mode . whitespace-cleanup))
+         (org-babel-after-execute . (lambda () (org-display-inline-images nil t)))
+         ;; Cleanup whitespace when entering/exiting org-edit-src buffer
+         (org-src-mode . whitespace-cleanup))
 
   :custom
   ;; Org-Mode structure settings
@@ -454,13 +455,66 @@
   :after org
   :commands (org-modern-mode org-modern-agenda)
   :hook ((org-mode                 . org-modern-mode)
-	 (org-agenda-finalize-hook . org-modern-agenda))
+         (org-agenda-finalize-hook . org-modern-agenda))
   :custom((org-modern-block-fringe 5)
-	  (org-modern-star '("◉" "○" "●" "○" "●" "○" "●"))))
+          (org-modern-star '("◉" "○" "●" "○" "●" "○" "●"))))
 
 (use-package org-appear
   :hook (org-mode)
   :custom (org-appear-inside-latex t))
+
+(use-package org
+  :after consult
+  :bind (("C-c a" . org-agenda)
+         ("C-c A" . consult-org-agenda))
+  :custom
+  (org-agenda-files '("~/agenda/"))
+  (org-agenda-window-setup 'current-window "Open in same window as called")
+  (org-agenda-restore-windows-after-quit t "Keep window format after quit")
+  (org-agenda-block-separator 8411         "Separator character")
+  (org-use-fast-todo-selection t "Select todo keywords from menu")
+  (org-log-into-drawer t         "Collapse log entries into drawer under task")
+  (org-agenda-start-with-log-mode t)
+
+  ;; Disable state changing via S-left or S-right
+  (org-treat-S-cursor-todo-selection-as-state-change nil)
+
+
+  ;; TODO(t)    :: set fast-access key from agenda view
+  ;; TODO(t@)   :: record note with timestamp
+  ;; TODO(t@/!) :: record timestamp when leaving state
+  (org-todo-keywords '((sequence
+                        "TODO(t@/!)"      ;; Document task
+                        "ACTIVE(a@/!)"    ;; Actively working on task
+                        "WAITING(w@/!)"   ;; Waiting for event related to task
+                        "HOLD(h@/!)"      ;; Task on hold
+                        "|" "DONE(d!)" "CANCELLED(x@/!)"))))
+
+  ;; ;; Automatically assign tags to tasks based on state changes
+  ;; (org-todo-state-tags-triggers
+  ;;  '(("TODO" ("TO-START" . t))
+  ;;    ("ACTIVE" ("TO-START") ("ACTION" . t))
+  ;;    ("WAITING" ("TO-START") ("ACTION") ("WAITING" . t))
+  ;;    ("TODO" ("ACTION") ("WAITING") ("HOLD") ("CANCELLED"))
+  ;;    ("DONE" ("TO-START") ("ACTION") ("WAITING") ("HOLD") ("CANCELLED"))))
+
+(use-package org
+  :bind ("C-C c" . org-capture)
+  :init
+  ;; Define org-agenda file paths for templates
+  (defconst jh/work-agenda (concat jh/agenda-dir "work.org"))
+  (defconst jh/personal-agenda (concat jh/agenda-dir "learning.org"))
+  :custom
+  ;; Streamline creation of todo task headers
+  (org-capture-templates
+   '(("m" "mlps" entry (file jh/work-agenda)
+      "* TODO %^{ENTER TASK} %^g\n:PROPERTIES:\n:category: mlps\n:end:\n\n%?")
+     ("r" "robovisor" entry (file jh/work-agenda)
+      "* TODO %^{ENTER TASK} %^g\n:PROPERTIES:\n:category: robovisor\n:end:\n\n%?")
+     ("e" "enrichments" entry (file jh/work-agenda)
+      "* TODO %^{ENTER TASK} %^g\n:PROPERTIES:\n:category: enrich\n:end:\n\n%?")
+     ("c" "emacs-config" entry (file jh/work-agenda)
+      "* TODO %^{ENTER TASK} %^g\n:PROPERTIES:\n:category: emacs\n:end:\n\n%?"))))
 
 (use-package magit
   :bind ("C-x g" . magit-status)
@@ -480,8 +534,8 @@
 (use-package git-gutter
   :hook (prog-mode org-mode)
   :bind (("C-x P" . git-gutter:previous-hunk)
-	 ("C-x N" . git-gutter:next-hunk)
-	 ("C-x G" . git-gutter:popup-hunk))
+         ("C-x N" . git-gutter:next-hunk)
+         ("C-x G" . git-gutter:popup-hunk))
   :config
   ;; Must include if 'linum-mode' activated (common in 'prog-mode')
   ;; because 'git-gutter' does not work with 'linum-mode'.

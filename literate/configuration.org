@@ -716,6 +716,7 @@ cursor is somewhere else. Lets change that.
 #+begin_src emacs-lisp
 (use-package org
   :demand t
+  :bind (("C-c l" . org-store-link))
   :hook (;; Refresh inline images after executing scr-block
          (org-babel-after-execute . (lambda () (org-display-inline-images nil t)))
          ;; Cleanup whitespace when entering/exiting org-edit-src buffer
@@ -798,6 +799,74 @@ inside the markers. We also extend this functionality to LaTeX.
 (use-package org-appear
   :hook (org-mode)
   :custom (org-appear-inside-latex t))
+#+end_src
+
+** Org-Agenda
+:agenda-sources:
++ doc.norang.ca :: Indepth agenda configuration [[[http://doc.norang.ca/org-mode.html#HowToUseThisDocument][blog]]]
++ SystemCrafters :: Basic agenda configuration [[[https://www.youtube.com/watch?v=PNE-mgkZ6HM&t=2728s][youtube]]]
++ DistroTube :: Basic agenda configuration [[[https://www.youtube.com/watch?v=8BOiRmjw5aU&t=138s][youtube]]]
++ Protesilaos :: How to customize an agenda [[[https://www.youtube.com/watch?v=UqtBXrzXPgQ][youtube]]]
++ LibrePhoenix :: =org-super-agenda= configuration [[[https://www.youtube.com/watch?v=a_WNtuefREM&t=997s][youtube]]]
+:end:
+
+#+begin_src emacs-lisp
+(use-package org
+  :after consult
+  :bind (("C-c a" . org-agenda)
+         ("C-c A" . consult-org-agenda))
+  :custom
+  (org-agenda-files '("~/agenda/"))
+  (org-agenda-window-setup 'current-window "Open in same window as called")
+  (org-agenda-restore-windows-after-quit t "Keep window format after quit")
+  (org-agenda-block-separator 8411         "Separator character")
+  (org-use-fast-todo-selection t "Select todo keywords from menu")
+  (org-log-into-drawer t         "Collapse log entries into drawer under task")
+  (org-agenda-start-with-log-mode t)
+
+  ;; Disable state changing via S-left or S-right
+  (org-treat-S-cursor-todo-selection-as-state-change nil)
+
+
+  ;; TODO(t)    :: set fast-access key from agenda view
+  ;; TODO(t@)   :: record note with timestamp
+  ;; TODO(t@/!) :: record timestamp when leaving state
+  (org-todo-keywords '((sequence
+                        "TODO(t@/!)"      ;; Document task
+                        "ACTIVE(a@/!)"    ;; Actively working on task
+                        "WAITING(w@/!)"   ;; Waiting for event related to task
+                        "HOLD(h@/!)"      ;; Task on hold
+                        "|" "DONE(d!)" "CANCELLED(x@/!)"))))
+
+  ;; ;; Automatically assign tags to tasks based on state changes
+  ;; (org-todo-state-tags-triggers
+  ;;  '(("TODO" ("TO-START" . t))
+  ;;    ("ACTIVE" ("TO-START") ("ACTION" . t))
+  ;;    ("WAITING" ("TO-START") ("ACTION") ("WAITING" . t))
+  ;;    ("TODO" ("ACTION") ("WAITING") ("HOLD") ("CANCELLED"))
+  ;;    ("DONE" ("TO-START") ("ACTION") ("WAITING") ("HOLD") ("CANCELLED"))))
+#+end_src
+
+** Org-Capture
+
+#+begin_src emacs-lisp
+(use-package org
+  :bind ("C-C c" . org-capture)
+  :init
+  ;; Define org-agenda file paths for templates
+  (defconst jh/work-agenda (concat jh/agenda-dir "work.org"))
+  (defconst jh/personal-agenda (concat jh/agenda-dir "learning.org"))
+  :custom
+  ;; Streamline creation of todo task headers
+  (org-capture-templates
+   '(("m" "mlps" entry (file jh/work-agenda)
+      "* TODO %^{ENTER TASK} %^g\n:PROPERTIES:\n:category: mlps\n:end:\n\n%?")
+     ("r" "robovisor" entry (file jh/work-agenda)
+      "* TODO %^{ENTER TASK} %^g\n:PROPERTIES:\n:category: robovisor\n:end:\n\n%?")
+     ("e" "enrichments" entry (file jh/work-agenda)
+      "* TODO %^{ENTER TASK} %^g\n:PROPERTIES:\n:category: enrich\n:end:\n\n%?")
+     ("c" "emacs-config" entry (file jh/work-agenda)
+      "* TODO %^{ENTER TASK} %^g\n:PROPERTIES:\n:category: emacs\n:end:\n\n%?"))))
 #+end_src
 
 * Version Control
