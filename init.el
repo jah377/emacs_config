@@ -482,6 +482,14 @@
     :commands git-gutter-mode
     :config (global-git-gutter-mode)))
 
+(use-package projectile
+  :init (projectile-mode 1)
+  ;; :custom
+  ;; ;; cache to prevent slow 'projectil-find-file' on larger projects
+  ;; (projectile-enable-caching t)
+  :bind (:map projectile-mode-map
+              ("C-c p" . projectile-command-map)))
+
 (use-package yankpad
   :ensure t
   :defer 10

@@ -825,6 +825,21 @@ inside the markers. We also extend this functionality to LaTeX.
 #+end_src
 
 * Productivity
+** Projectile
+
+The =projectile= package provides a number of project interaction
+features [[[https://github.com/bbatsov/projectile][github/projectile]]].
+
+#+begin_src emacs-lisp
+(use-package projectile
+  :init (projectile-mode 1)
+  ;; :custom
+  ;; ;; cache to prevent slow 'projectil-find-file' on larger projects
+  ;; (projectile-enable-caching t)
+  :bind (:map projectile-mode-map
+              ("C-c p" . projectile-command-map)))
+#+end_src
+
 ** Yankpad
 
 The =Yankpad= package streamlines the mundane insertion of text
