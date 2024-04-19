@@ -490,4 +490,22 @@
   ;; Always require user to provide snippet category before 'yankpad-insert'
   (advice-add 'yankpad-insert :before (lambda () (setq yankpad-category nil))))
 
+(defun create-file-link-from-current-buffer ()
+  "Build [[:file file-path][file-name]] org-link from current
+buffer.
+
+The function 'buffer-file-name' returns the absolute path of the
+buffer, which breaks should other users open the link. Instead,
+the relative path is referenced using the 'abbreviate-file-name'
+function."
+
+  (interactive)
+  (if-let ((absolute-path (buffer-file-name)))
+      (kill-new (message "[[file:%s][%s]]"
+                         (abbreviate-file-name absolute-path)
+                         (buffer-name)))
+    (message "Buffer is not a file")))
+
+(global-set-key (kbd "C-c L") 'create-file-link-from-current-buffer)
+
 ;;; init.el ends here

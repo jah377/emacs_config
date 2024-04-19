@@ -840,6 +840,29 @@ snippets.
   (advice-add 'yankpad-insert :before (lambda () (setq yankpad-category nil))))
 #+end_src
 
+* Custom Function
+** Create :file Link to Current Buffer
+
+#+begin_src emacs-lisp
+(defun create-file-link-from-current-buffer ()
+  "Build [[:file file-path][file-name]] org-link from current
+buffer.
+
+The function 'buffer-file-name' returns the absolute path of the
+buffer, which breaks should other users open the link. Instead,
+the relative path is referenced using the 'abbreviate-file-name'
+function."
+
+  (interactive)
+  (if-let ((absolute-path (buffer-file-name)))
+      (kill-new (message "[[file:%s][%s]]"
+                         (abbreviate-file-name absolute-path)
+                         (buffer-name)))
+    (message "Buffer is not a file")))
+
+(global-set-key (kbd "C-c L") 'create-file-link-from-current-buffer)
+#+end_src
+
 * Conclusion
 
 Ta-dah!
