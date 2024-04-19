@@ -802,6 +802,15 @@ inside the markers. We also extend this functionality to LaTeX.
 
 * Version Control
 
+The =magit= package is a texted-based user interface to Git (Git
+Porcelain) inside Emacs [https://magit.vc/].
+
+Related, the =git-gutter= package flags lines that contain uncommitted
+changes (or changes not staged).
+  + +  :: New lines
+  + [] :: Modified lines
+  + -  :: Removed lines
+
 #+begin_src emacs-lisp
 (use-package magit
   :bind ("C-x g" . magit-status)
