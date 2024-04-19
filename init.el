@@ -435,7 +435,14 @@
    ;; stars.
    (lambda ()
      (and (looking-at org-outline-regexp)
-	  (looking-back "^\**"))))
+          (looking-back "^\**"))))
+
+  ;; TODO :: use yassnippet instead
+  (org-structure-template-alist '(("c" . "comment")
+                                  ("q" . "quote")
+                                  ("p" . "src python")
+                                  ("P" . "src python :results silent")
+                                  ("e" . "src emacs-lisp")))
 
   :config
   ;; Improved vertical scrolling when images are present
