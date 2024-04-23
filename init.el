@@ -48,6 +48,42 @@
                            gcmh-high-cons-threshold (* 32 1024 1024)
                            gcmh-idle-delay 30))))
 
+(use-package which-key
+  :config (which-key-mode)
+  :custom
+  (which-key-show-early-on-C-h t     "Trigger which-key manually")
+  (which-key-idle-delay 0.5          "Delay before popup appears")
+  (which-key-idle-second-delay 0.05  "Responsiveness after triggered")
+  (which-key-popup-type 'minibuffer  "Where to show which-key")
+  (which-key-max-display-columns nil "N-cols determined from monotor")
+  (which-key-separator " → "         "ex: C-x DEL backward-kill-sentence")
+  (which-key-add-column-padding 1    "Padding between columns of keys")
+  (which-key-show-remaining-keys t   "Show count of keys in modeline"))
+
+;; Collection of useful keybindings
+(use-package crux
+  :bind (([remap move-beginning-of-line] . 'crux-move-beginning-of-line)
+         ([remap kill-whole-line] . 'crux-kill-whole-line)
+         ("M-o" . 'crux-switch-to-previous-buffer)
+         ("C-<backspace>" . 'crux-kill-line-backwards)
+         ("C-c 3" . 'crux-view-url)))
+
+;; 'Find-File-At-Point' package adds additional functionality to
+;; existing keybindings
+(ffap-bindings)
+
+;; Close all other windows
+(global-set-key (kbd "C-x O") (lambda ()
+                                (interactive)
+                                (select-window (get-mru-window t t t))))
+
+(global-set-key (kbd "C-c l") 'org-store-link)
+
+(global-set-key (kbd "C-+") 'text-scale-increase)
+(global-set-key (kbd "C--") 'text-scale-decrease)
+
+(global-set-key (kbd "C-c C-;") 'copy-comment-region)
+
 ;; Disable theme before loading to avoid funkiness
 (defadvice load-theme (before disable-themes-first activate)
   (mapc #'disable-theme custom-enabled-themes))
@@ -393,7 +429,9 @@
 
 (use-package org
   :demand t
-  :bind (("C-c l" . org-store-link))
+  :bind (("C-c l" . org-store-link)
+         ("C-c a" . org-agenda)
+         ("C-c c" . org-capture))
   :hook (;; Refresh inline images after executing scr-block
          (org-babel-after-execute . (lambda () (org-display-inline-images nil t)))
          ;; Cleanup whitespace when entering/exiting org-edit-src buffer
@@ -463,58 +501,233 @@
   :hook (org-mode)
   :custom (org-appear-inside-latex t))
 
-(use-package org
-  :after consult
-  :bind (("C-c a" . org-agenda)
-         ("C-c A" . consult-org-agenda))
-  :custom
-  (org-agenda-files '("~/agenda/"))
-  (org-agenda-window-setup 'current-window "Open in same window as called")
-  (org-agenda-restore-windows-after-quit t "Keep window format after quit")
-  (org-agenda-block-separator 8411         "Separator character")
-  (org-use-fast-todo-selection t "Select todo keywords from menu")
-  (org-log-into-drawer t         "Collapse log entries into drawer under task")
-  (org-agenda-start-with-log-mode t)
+;; Constant simplifies file paths used by 'org-capture-template'
+(defconst jh/agenda-dir "~/agenda/")
+(defconst jh/agenda-path-work (concat jh/agenda-dir "work.org"))
+(defconst jh/agenda-path-meetings (concat jh/agenda-dir "meetings.org"))
+(defconst jh/agenda-path-personal (concat jh/agenda-dir "personal.org"))
 
-  ;; Disable state changing via S-left or S-right
-  (org-treat-S-cursor-todo-selection-as-state-change nil)
+;; Temp buffers always start with '.#'; exclude from 'org-agenda-files'
+(setq org-agenda-files (directory-files jh/agenda-dir t "^[^.#].*\\.org$"))
+
+;; Open 'org-agenda' buffer in current buffer
+(setq org-agenda-window-setup 'current-window)
+(setq org-agenda-restore-windows-after-quite t)
+
+;; ;; Set block separator in agenda mode
+;; (setq org-agenda-block-separator 8411)
+;; (setq org-agenda-start-with-log-mode t)
+
+;; @ to record timestamp; /! to record note
+(setq org-todo-keywords
+             '((sequence
+               "TODO(t@/!)"      ;; Initiate task
+               "ACTIVE(a@/!)"    ;; Task in progress
+               "WAITING(w@/!)"   ;; Wait for event related to task
+               "HOLD(h@/!)"      ;; Task on hold
+               "|" "DONE(d!)" "CANCELLED(x@/!)")))
+
+;; By default, 'org-todo' cycles through todo keywords in the sequence
+;; defined above. The following changes the behavior to intead open a
+;; menu containing fast-access keys.
+(setq org-use-fast-todo-selection t)
+
+;; Store timestamps and log notes into a drawer
+(setq org-log-into-drawer t)
+
+;; Store logs chronologically -- earliest log at the top of notes
+(setq org-log-states-order-reversed nil)
+
+;; (use-package org-fancy-priorities
+;;   :after org
+;;   :hook org-mode
+;;   :custom
+;;   (org-fancy-priorities-list '("📕" "📙" "📒")))
+
+;; Return checkbox statistics only for direct todo child header
+(setq org-checkbox-hierarchical-statistics t)
+
+;; Remove tags from agenda-view
+(setq org-agenda-hide-tags-regexp ".*")
+
+;; Update tag alignment after updating header text
+(setq org-auto-align-tags t)
+
+;; My intention is for tags to be context-specific and therefore
+;; defined in the #+TAGS file property header. With that said, some
+;; tags should persist across all org-agenda files.
+(setq org-tag-alist '(("project" . ?P)))
 
 
-  ;; TODO(t)    :: set fast-access key from agenda view
-  ;; TODO(t@)   :: record note with timestamp
-  ;; TODO(t@/!) :: record timestamp when leaving state
-  (org-todo-keywords '((sequence
-                        "TODO(t@/!)"      ;; Document task
-                        "ACTIVE(a@/!)"    ;; Actively working on task
-                        "WAITING(w@/!)"   ;; Waiting for event related to task
-                        "HOLD(h@/!)"      ;; Task on hold
-                        "|" "DONE(d!)" "CANCELLED(x@/!)"))))
+;; Childen task headers should inherit project-level tags, excluding
+;; 'project'. This will make it easier to track project tasks in the
+;; org-agenda view.
+(setq org-use-tag-inheritance t)
+(add-to-list 'org-tags-exclude-from-inheritance "project")
 
-  ;; ;; Automatically assign tags to tasks based on state changes
-  ;; (org-todo-state-tags-triggers
-  ;;  '(("TODO" ("TO-START" . t))
-  ;;    ("ACTIVE" ("TO-START") ("ACTION" . t))
-  ;;    ("WAITING" ("TO-START") ("ACTION") ("WAITING" . t))
-  ;;    ("TODO" ("ACTION") ("WAITING") ("HOLD") ("CANCELLED"))
-  ;;    ("DONE" ("TO-START") ("ACTION") ("WAITING") ("HOLD") ("CANCELLED"))))
+(use-package org-ql
+  :ensure t
+  :defer t
+  :after org)
 
-(use-package org
-  :bind ("C-C c" . org-capture)
-  :init
-  ;; Define org-agenda file paths for templates
-  (defconst jh/work-agenda (concat jh/agenda-dir "work.org"))
-  (defconst jh/personal-agenda (concat jh/agenda-dir "learning.org"))
-  :custom
-  ;; Streamline creation of todo task headers
-  (org-capture-templates
-   '(("m" "mlps" entry (file jh/work-agenda)
-      "* TODO %^{ENTER TASK} %^g\n:PROPERTIES:\n:category: mlps\n:end:\n\n%?")
-     ("r" "robovisor" entry (file jh/work-agenda)
-      "* TODO %^{ENTER TASK} %^g\n:PROPERTIES:\n:category: robovisor\n:end:\n\n%?")
-     ("e" "enrichments" entry (file jh/work-agenda)
-      "* TODO %^{ENTER TASK} %^g\n:PROPERTIES:\n:category: enrich\n:end:\n\n%?")
-     ("c" "emacs-config" entry (file jh/work-agenda)
-      "* TODO %^{ENTER TASK} %^g\n:PROPERTIES:\n:category: emacs\n:end:\n\n%?"))))
+(org-ql-select
+  jh/agenda-path-work
+  '(level 1)
+  :action '(org-get-heading 'no-tags 'no-todo))
+
+
+
+(setq org-cpature-templates
+      '(("m"
+         "Meeting"
+         entry (file jh/agenda-path-meetings)
+         "* ACTIVE %^{Meeting Title} %^g\nSCHEDULED: %t\n\n%?\n")))
+
+;; (org-capture-templates
+;;    '(("p" "Personal" entry
+;;       (file "xyzz/location")
+;;       "* TODO [Personal] %? %(org-set-tags \"personal\")
+;; DEADLINE: %^t")))
+
+;; (use-package org
+;;   :bind ("C-C c" . org-capture)
+;;   :init
+;;   ;; Define org-agenda file paths for templates
+;;   (defconst jh/agenda-dir "~/agenda/")
+;;   (defconst jh/work-agenda (concat jh/agenda-dir "work.org"))
+;;   (defconst jh/personal-agenda (concat jh/agenda-dir "learning.org"))
+
+;;   (setq org-agenda-files '("~/agenda/"))
+;;   :custom
+;;   ;; Streamline creation of todo task headers
+;;   (org-capture-templates
+;;    '(("m" "Meeting" entry (file jh/work-agenda)
+;;       "* TODO %^{ENTER TASK} %^g\n:PROPERTIES:\n:category: mlps\n:end:\n\n%?")
+;;      ("r" "robovisor" entry (file jh/work-agenda)
+;;       "* TODO %^{ENTER TASK} %^g\n:PROPERTIES:\n:category: robovisor\n:end:\n\n%?")
+;;      ("e" "enrichments" entry (file jh/work-agenda)
+;;       "* TODO %^{ENTER TASK} %^g\n:PROPERTIES:\n:category: enrich\n:end:\n\n%?")
+;;      ("c" "emacs-config" entry (file jh/work-agenda)
+;;       "* TODO %^{ENTER TASK} %^g\n:PROPERTIES:\n:category: emacs\n:end:\n\n%?"))))
+
+(use-package org-super-agenda
+  :defer t
+  :after org
+  :hook (org-agenda-mode . org-super-agenda-mode)
+  :config
+  (set-face-attribute 'org-super-agenda-header nil :weight 'bold))
+
+;; (setq org-agenda-custom-commands
+;;       '(;; Return org-headers containing children tasks (ie projects)
+;;         ("w" "Ongoing Work Projects"
+;;          ((todo "" ((org-agenda-overriding-header "Work Projects")
+;;                     (org-agenda-files '("~/agenda/work.org"))
+;;                     (org-super-agenda-groups
+;;                      '((:name none ;; Disble super group header
+;;                               :children t)
+;;                        (:discard (:anything t))))))))))
+
+;; (setq org-agenda-custom-commands
+;;       '(("s" "Project Summary View"
+;;          ((alltodo "" ((org-agenda-overriding-header "")
+;;                        (org-super-agenda-groups
+;;                         '((:name "MLPScore-Motor"
+;;                                  :tag "motor"
+;;                                  :auto-property "ProjectId"
+;;                                  :order 10)
+;;                           (:name "MLPScore-Home"
+;;                                  :tag "home"
+;;                                  :auto-property "ProjectId"
+;;                                  :order 12)
+;;                           (:name "AF-Robovisor"
+;;                                  :tag "robovisor"
+;;                                  :auto-property "ProjectId"
+;;                                  :order 14)
+;;                           (:name "MLP Emacs Config"
+;;                                  :tag "config"
+;;                                  :auto-property "ProjectId"
+;;                                  :order 13)
+;;                           (:name "Enrichments"
+;;                                  :tag "enrichments"
+;;                                  :auto-property "ProjectId"
+;;                                  :order 15)
+;;                           (:name "MLP-Docs"
+;;                                  :tag "mlpdocs"
+;;                                  :auto-property "ProjectId"
+;;                                  :order 30)))))))))
+
+;; (use-package org
+;;   :after consult
+;;   :bind (("C-c a" . org-agenda)
+;;          ("C-c A" . consult-org-agenda))
+;;   :custom
+;;   (org-agenda-files '("~/agenda/"))
+;;   (org-agenda-window-setup 'current-window "Open in same window as called")
+;;   (org-agenda-restore-windows-after-quit t "Keep window format after quit")
+;;   (org-agenda-block-separator 8411         "Separator character")
+;;   (org-use-fast-todo-selection t "Select todo keywords from menu")
+;;   (org-log-into-drawer t         "Collapse log entries into drawer under task")
+;;   (org-agenda-start-with-log-mode t)
+
+;;   ;; Only use tags to organize tasks
+;;   (org-agenda-hide-tags-regexp ".*")
+
+;;   ;; Disable state changing via S-left or S-right
+;;   (org-treat-S-cursor-todo-selection-as-state-change nil)
+
+;;   ;; Set span for agenda to be just daily.
+;;   (org-agenda-span 1          "Default: 10 days")
+;;   (org-agenda-start-day "+0d" "Default: -3d, before current date")
+
+;;   ;; Remove completed tasks from agenda views
+;;   (org-agenda-skip-timestamp-if-done t)
+;;   (org-agenda-skip-deadline-if-done t)
+;;   (org-agenda-skip-scheduled-if-deadline-is-shown t)
+;;   (org-agenda-skip-timestamp-if-deadline-is-shown t)
+
+;;   ;; Simplify time-grid agenda display
+;;   (org-agenda-current-time-string ""        "Remove agenda 'now...' indicator")
+;;   (org-agenda-time-grid '((daily) () "" "") "Remove empty hours from grid")
+
+;;   ;; TODO(t)    :: set fast-access key from agenda view
+;;   ;; TODO(t@)   :: record note with timestamp
+;;   ;; TODO(t@/!) :: record timestamp when leaving state
+;;   (org-todo-keywords '((sequence
+;;                         "TODO(t@/!)"      ;; Document task
+;;                         "ACTIVE(a@/!)"    ;; Actively working on task
+;;                         "WAITING(w@/!)"   ;; Waiting for event related to task
+;;                         "HOLD(h@/!)"      ;; Task on hold
+;;                         "|" "DONE(d!)" "CANCELLED(x@/!)")))
+
+;;   ;; Automatically assign tags to tasks based on state changes
+;;   (org-todo-state-tags-triggers
+;;    '(("TODO" ("START" . t))
+;;      ("ACTIVE" ("TO-START") ("ACTION" . t))
+;;      ("WAITING" ("TO-START") ("ACTION") ("WAITING" . t))
+;;      ("TODO" ("ACTION") ("WAITING") ("HOLD") ("CANCELLED"))
+;;      ("DONE" ("TO-START") ("ACTION") ("WAITING") ("HOLD") ("CANCELLED"))))
+
+;;   ;; ;; Restructure order of information displayed in agenda-view
+;;   ;; (org-agenda-prefix-format '((agenda . "  %?-2i %t ")
+;;   ;;                             (todo .   " %i %-12:c")
+;;   ;;                             (tags .   " %i %-12:c")
+;;   ;;                             (search . " %i %-12:c")))
+
+;;   ;; (org-agenda-category-icon-alist
+;;   ;;  '(("mlps-motor",
+;;   ;;     (list (nerd-icons-faicon "nf-fa-car")) nil nil :ascent center)
+;;   ;;    ("mlps-home" ,
+;;   ;;     (list (nerd-icons-sucicon "nf-custom-home")) nil nil :ascent center)
+;;   ;;    ("enrichments",
+;;   ;;     (list (nerd-icons-faicon "nf-fa-wand_magic")) nil nil :ascent center)
+;;   ;;    ("emacs",
+;;   ;;     (list (nerd-icons-sucicon "nf-custom-emacs")) nil nil :ascent center)
+;;   ;;    ("reading",
+;;   ;;     (list (nerd-icons-octicon "nf-oct-book")) nil nil :ascent center)
+;;   ;;    ("linux",
+;;   ;;     (list (nerd-icons-flicon "nf-linux-archlinux")) nil nil :ascent center)))
+
+;;   )
 
 (use-package magit
   :bind ("C-x g" . magit-status)
@@ -559,6 +772,15 @@
   ;; Always require user to provide snippet category before 'yankpad-insert'
   (advice-add 'yankpad-insert :before (lambda () (setq yankpad-category nil))))
 
+;; alternative to built-in Emacs help
+(use-package helpful
+  :bind (("C-h j" . helpful-at-point)
+         ("C-h f" . helpful-callable)
+         ("C-h v" . helpful-variable)
+         ("C-h k" . helpful-key)
+         ("C-c C-d" . helpful-at-point)
+         ("C-h F" . helpful-function)))
+
 (defun create-file-link-from-current-buffer ()
   "Build [[:file file-path][file-name]] org-link from current
 buffer.
@@ -576,5 +798,42 @@ function."
     (message "Buffer is not a file")))
 
 (global-set-key (kbd "C-c L") 'create-file-link-from-current-buffer)
+
+;; (defun jh/format-input-str (input-string)
+;;   "Format INPUT-STRING.
+
+;; INPUT-STRING converted to downcase, stripped of leading/trailing
+;; whitespaces, and symbols/white-spaces replaced with -."
+
+;;   (let ((input-string (string-trim (downcase input-string))))
+;;     (if (string= input-string "")
+;;         (error "Input string cannot be empty")
+;;       (replace-regexp-in-string "[^[:alnum:]]\\| " "-" input-string))))
+
+;; (defun format-test (input)
+;;   "Format INPUT.
+
+;; If INPUT is a string, it's converted to lowercase, stripped of
+;; leading/trailing whitespaces, and symbols/white-spaces replaced
+;; with -. If INPUT is a list, each element is processed
+;; recursively. For other types of inputs, an error is returned."
+
+;;   (cond
+;;     ((stringp input)
+;;       (let ((formatted-input (string-trim (downcase input))))
+;;         (if (string= formatted-input "")
+;;             (error "Input string cannot be empty")
+;;           (replace-regexp-in-string "[^[:alnum:]]+" "-" formatted-input))))
+;;     ((listp input)
+;;       (mapcar #'format-test input))
+;;     (t
+;;       (error "Input must be a string or a list"))))
+
+;; ;; Example usage:
+;; (format-test "mlp__emacs__config")
+;; (format-test '("mlp-docs" 42 "af-robovisor" "ogi-products"))
+;; ;; (format-test 42)
+
+;; ;; (format-test 42)
 
 ;;; init.el ends here
