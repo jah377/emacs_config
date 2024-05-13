@@ -1056,70 +1056,115 @@ property header.
 #+end_src
 
 *** Agenda Capture Templates
-:PROPERTIES:
-:ORDERED:  t
-:END:
-
-
 
 #+begin_src emacs-lisp
-(use-package org-ql
-  :ensure t
-  :defer t
-  :after org)
-#+end_src
-
-#+begin_src emacs-lisp :results display
-(org-ql-select
-  jh/agenda-path-work
-  '(level 1)
-  :action '(org-get-heading 'no-tags 'no-todo))
+;; Persistent variables for 'org-capture-template'
+(customize-save-variable 'mlp-projects '())
+(customize-save-variable 'mlp-members '("ALL" "DEVS" "damian" "james" "mike"
+                                        "bon" "david" "luke"
+                                        "cristina" "baran" "fabrizio" "chris"
+                                        "nestor" "seva" "berke"))
+(customize-save-variable 'mlp-repos '("ogi_products"
+                                      "enrichments"
+                                      "mlp-emacs-config"
+                                      "af-robovisor"))
 #+end_src
 
 #+begin_src emacs-lisp
+(defun jh/format-string (str)
+  "Format STR string.
+Push to lowercase, strip leading/trailing whitespaces, and
+replace spaces with _."
+  (if (string= str "")
+      (error "Input string cannot be empty")
+    (replace-regexp-in-string "\\s-+" "_" (downcase (string-trim str)))))
 #+end_src
 
 #+begin_src emacs-lisp
-(setq org-cpature-templates
-      '(("m"
-         "Meeting"
-         entry (file jh/agenda-path-meetings)
-         "* ACTIVE %^{Meeting Title} %^g\nSCHEDULED: %t\n\n%?\n")))
+(defun jh/completing-read-multiple-maybe (prompt collection &optional allow-multiple match-required)
+    "Read a PROMPT in the minibuffer for user to selection item(s)
+from COLLECTION, with completion.
+
+If ALLOW-MULTIPLE non-nil, allow user to select multiple
+values. If MATCH-REQUIRED non-nil, allow user to provide their
+own variable."
+
+  ;; Sanity check
+  (unless (stringp prompt)
+    (error "jh/completing-read-multiple-maybe: PROMPT must be a string"))
+  (unless (or (listp collection) (symbolp collection))
+    (error "jh/completing-read-multiple-maybe: COLLECTION must be symbol or list"))
+
+  (let* ((choices (if (symbolp collection)
+                      (symbol-value collection)
+                    collection))
+         (response (if allow-multiple
+                       (delete-dups (completing-read-multiple
+                                     prompt choices nil match-required))
+                     (completing-read prompt choices nil match-required))))
+
+    ;; If 'match-required' nil, must format user-provided string
+    ;; values not found in collection.
+    (when-let* ((_ (not match-required))
+                (new-vals (mapcar 'jh/format-string (seq-difference response choices))))
+      (setq response (append new-vals (seq-intersection response choices)))
+      (when (symbolp collection)
+        (customize-save-variable collection response)))
+    response))
 #+end_src
 
 #+begin_src emacs-lisp
-;; (org-capture-templates
-;;    '(("p" "Personal" entry
-;;       (file "xyzz/location")
-;;       "* TODO [Personal] %? %(org-set-tags \"personal\")
-;; DEADLINE: %^t")))
+;; (setq org-capture-templates
+;;       '(("m" "Work Meeting" entry (file jh/agenda-path-meetings)
+;;          "* %^{Meeting Title} %^g
+;; :PROPERTIES:
+;; :created: %U
+;; :project: %(jh/user-select \"Select project: \" mlp-projects)
+;; :attendees: %(jh/user-select \"Select attendees: \" mlp-members 'allow-multiple)
+;; :purpose: %^{Purpose of meeting}
+;; :END:\n\n%?"
+;;          :empty-lines 1
+;;          :jump-to-captured t)
 
-;; (use-package org
-;;   :bind ("C-C c" . org-capture)
-;;   :init
-;;   ;; Define org-agenda file paths for templates
-;;   (defconst jh/agenda-dir "~/agenda/")
-;;   (defconst jh/work-agenda (concat jh/agenda-dir "work.org"))
-;;   (defconst jh/personal-agenda (concat jh/agenda-dir "learning.org"))
-
-;;   (setq org-agenda-files '("~/agenda/"))
-;;   :custom
-;;   ;; Streamline creation of todo task headers
-;;   (org-capture-templates
-;;    '(("m" "Meeting" entry (file jh/work-agenda)
-;;       "* TODO %^{ENTER TASK} %^g\n:PROPERTIES:\n:category: mlps\n:end:\n\n%?")
-;;      ("r" "robovisor" entry (file jh/work-agenda)
-;;       "* TODO %^{ENTER TASK} %^g\n:PROPERTIES:\n:category: robovisor\n:end:\n\n%?")
-;;      ("e" "enrichments" entry (file jh/work-agenda)
-;;       "* TODO %^{ENTER TASK} %^g\n:PROPERTIES:\n:category: enrich\n:end:\n\n%?")
-;;      ("c" "emacs-config" entry (file jh/work-agenda)
-;;       "* TODO %^{ENTER TASK} %^g\n:PROPERTIES:\n:category: emacs\n:end:\n\n%?"))))
+;;       ("p" "Work Project" entry (file jh/agenda-path-work)
+;;          "* TODO %^{Header text} %^g:project:
+;; :PROPERTIES:
+;; :repo: %(jh/user-select \"Select repository: \" mlp-repos)
+;; :category: %(jh/user-select \"Select project: \" mlp-projects)
+;; :END:
+;; :LOGBOOK:
+;; - State \"TODO\"       from              %U \\\
+;;   %?
+;; :END:"
+;;          :empty-lines 1
+;;          :jump-to-captured t)))
 #+end_src
 
 *** Agenda Views
 
 Mentioned previously, the package =org-super-agenda= will be used to
 better group and organize our tasks and projects.
+
+#+begin_src emacs-lisp
+(use-package org-ql
+  :ensure t
+  :defer t
+  :after org)
+
+(defun extract-header-names (org-filepath)
+  "Return names of top-level org-headers in ORG-FILEPATH."
+  (defun remove-checkbox-stats (element)
+    "Remove [/] or [%] stats from name of ELEMENT"
+    (replace-regexp-in-string " \\[.*?\\]$" ""
+                              (org-element-property :raw-value element)))
+  ;; 'org-filepath' must exist and readable
+  (unless (file-readable-p org-filepath)
+    (error "Org file %s is not readable or does not exist." org-filepath))
+  (mapcar 'remove-checkbox-stats
+          (org-ql-select org-filepath
+            '(level 1)
+            :action 'element-with-markers)))
+#+end_src
 
 #+begin_src emacs-lisp
 (use-package org-super-agenda
@@ -1376,31 +1421,31 @@ function."
 
 
 #+begin_src emacs-lisp
-;; (defun format-test (input)
-;;   "Format INPUT.
+(defun format-test (input)
+  "Format INPUT.
 
-;; If INPUT is a string, it's converted to lowercase, stripped of
-;; leading/trailing whitespaces, and symbols/white-spaces replaced
-;; with -. If INPUT is a list, each element is processed
-;; recursively. For other types of inputs, an error is returned."
+If INPUT is a string, it's converted to lowercase, stripped of
+leading/trailing whitespaces, and symbols/white-spaces replaced
+with -. If INPUT is a list, each element is processed
+recursively. For other types of inputs, an error is returned."
 
-;;   (cond
-;;     ((stringp input)
-;;       (let ((formatted-input (string-trim (downcase input))))
-;;         (if (string= formatted-input "")
-;;             (error "Input string cannot be empty")
-;;           (replace-regexp-in-string "[^[:alnum:]]+" "-" formatted-input))))
-;;     ((listp input)
-;;       (mapcar #'format-test input))
-;;     (t
-;;       (error "Input must be a string or a list"))))
+  (cond
+    ((stringp input)
+      (let ((formatted-input (string-trim (downcase input))))
+        (if (string= formatted-input "")
+            (error "Input string cannot be empty")
+          (replace-regexp-in-string "[^[:alnum:]]+" "-" formatted-input))))
+    ((listp input)
+      (mapcar #'format-test input))
+    (t
+      (error "Input must be a string or a list"))))
 
-;; ;; Example usage:
-;; (format-test "mlp__emacs__config")
-;; (format-test '("mlp-docs" 42 "af-robovisor" "ogi-products"))
-;; ;; (format-test 42)
+;; Example usage:
+(format-test "mlp__emacs__config")
+(format-test '("mlp-docs" "af-robovisor" "ogi-products"))
+;; (format-test 42)
 
-;; ;; (format-test 42)
+;; (format-test 42)
 #+end_src
 
 * Conclusion
