@@ -565,63 +565,67 @@
 (setq org-use-tag-inheritance t)
 (add-to-list 'org-tags-exclude-from-inheritance "project")
 
-;; Persistent variables for 'org-capture-template'
-(customize-save-variable 'mlp-projects '())
-(customize-save-variable 'mlp-members '("ALL" "DEVS" "damian" "james" "mike"
-                                        "bon" "david" "luke"
-                                        "cristina" "baran" "fabrizio" "chris"
-                                        "nestor" "seva" "berke"))
-(customize-save-variable 'mlp-repos '("ogi_products"
-                                      "enrichments"
-                                      "mlp-emacs-config"
-                                      "af-robovisor"))
+;; ;; Persistent variables for 'org-capture-template'
+;; (customize-save-variable 'mlp-projects '())
+;; (customize-save-variable 'mlp-members '("ALL" "DEVS" "damian" "james" "mike"
+;;                                         "bon" "david" "luke"
+;;                                         "cristina" "baran" "fabrizio" "chris"
+;;                                         "nestor" "seva" "berke"))
+;; (customize-save-variable 'mlp-repos '("ogi_products"
+;;                                       "enrichments"
+;;                                       "mlp-emacs-config"
+;;                                       "af-robovisor"))
 
-(defun jh/format-string (str)
-  "Format STR string.
-Push to lowercase, strip leading/trailing whitespaces, and
-replace spaces with _."
-  (if (string= str "")
-      (error "Input string cannot be empty")
-    (replace-regexp-in-string "\\s-+" "_" (downcase (string-trim str)))))
+;; (defun jh/format-string (str)
+;;   "Format STR string.
+;; Push to lowercase, strip leading/trailing whitespaces, and
+;; replace spaces with _."
+;;   (replace-regexp-in-string "\\s-+" "_" (downcase (string-trim str))))
 
-(defun jh/completing-read-multiple-maybe (prompt collection &optional allow-multiple match-required)
-    "Read a PROMPT in the minibuffer for user to selection item(s)
-from COLLECTION, with completion.
+;; (defun jh/org-capture-select-and-store (prompt collection &optional allow-multiple match-required)
+;;     "Read a PROMPT in the minibuffer for user to selection item(s)
+;; from COLLECTION, with completion.
 
-If ALLOW-MULTIPLE non-nil, allow user to select multiple
-values. If MATCH-REQUIRED non-nil, allow user to provide their
-own variable."
+;; If ALLOW-MULTIPLE non-nil, allow user to select multiple
+;; values. If MATCH-REQUIRED non-nil, allow user to provide their
+;; own variable."
 
-  ;; Sanity check
-  (unless (stringp prompt)
-    (error "jh/completing-read-multiple-maybe: PROMPT must be a string"))
-  (unless (or (listp collection) (symbolp collection))
-    (error "jh/completing-read-multiple-maybe: COLLECTION must be symbol or list"))
+;;   ;; Sanity check
+;;   (unless (stringp prompt)
+;;     (error "jh/completing-read-multiple-maybe: PROMPT must be a string"))
+;;   (unless (or (listp collection) (symbolp collection))
+;;     (error "jh/completing-read-multiple-maybe: COLLECTION must be symbol or list"))
 
-  (let* ((choices (if (symbolp collection)
-                      (symbol-value collection)
-                    collection))
-         (response (if allow-multiple
-                       (delete-dups (completing-read-multiple
-                                     prompt choices nil match-required))
-                     (completing-read prompt choices nil match-required))))
+;;   (let* ((choices (if (symbolp collection)
+;;                       (symbol-value collection)
+;;                     collection))
+;;          (response (if allow-multiple
+;;                        (delete-dups (completing-read-multiple
+;;                                      prompt choices nil match-required))
+;;                      (completing-read prompt choices nil match-required))))
 
-    ;; If 'match-required' nil, must format user-provided string
-    ;; values not found in collection.
-    (when-let* ((_ (not match-required))
-                (new-vals (mapcar 'jh/format-string (seq-difference response choices))))
-      (setq response (append new-vals (seq-intersection response choices)))
-      (when (symbolp collection)
-        (customize-save-variable collection response)))
-    response))
+;;     ;; If 'match-required' nil, must format user-provided string
+;;     ;; values not found in collection.
+;;     (when-let* ((new-vals (seq-difference response choices))
+;;                 (_ (> (length new-vals) 0)))
+;;       (message "%s" new-vals)
+;;       (setq response (append (mapcar 'jh/format-string new-vals)
+;;                              (seq-intersection response choices)))
+;;       (when (symbolp collection)
+;;         (customize-save-variable collection response)))
+
+;;     ;; Must return single string for 'org-capture-template'
+;;     (mapconcat 'identity response (if (> (length response) 1)
+;;                                       ""
+;;                                     ", "))))
 
 ;; (setq org-capture-templates
 ;;       '(("m" "Work Meeting" entry (file jh/agenda-path-meetings)
 ;;          "* %^{Meeting Title} %^g
 ;; :PROPERTIES:
 ;; :created: %U
-;; :project: %(jh/user-select \"Select project: \" mlp-projects)
-;; :attendees: %(jh/user-select \"Select attendees: \" mlp-members 'allow-multiple)
+;; :project: %(jh/org-capture-select-and-store \"Select repository: \" mlp-repos)
+;; :attendees: %(jh/org-capture-select-and-store \"Select attendees: \" mlp-members 'allow-multiple)
 ;; :purpose: %^{Purpose of meeting}
 ;; :END:\n\n%?"
 ;;          :empty-lines 1
@@ -630,9 +634,18 @@ own variable."
 ;;       ("p" "Work Project" entry (file jh/agenda-path-work)
 ;;          "* TODO %^{Header text} %^g:project:
 ;; :PROPERTIES:
-;; :repo: %(jh/user-select \"Select repository: \" mlp-repos)
-;; :category: %(jh/user-select \"Select project: \" mlp-projects)
+;; :repo: %(jh/org-capture-select-and-store \"Select repository: \" mlp-repos)
+;; :category: %(jh/org-capture-select-and-store \"Select project (category): \" mlp-projects)
 ;; :END:
+;; :LOGBOOK:
+;; - State \"TODO\"       from              %U \\\
+;;   %?
+;; :END:"
+;;          :empty-lines 1
+;;          :jump-to-captured t)
+
+;;       ("l" "Personal Learning" entry (file jh/agenda-path-personal)
+;;          "* TODO %^{Header text} %^g
 ;; :LOGBOOK:
 ;; - State \"TODO\"       from              %U \\\
 ;;   %?
