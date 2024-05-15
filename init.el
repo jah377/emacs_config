@@ -583,20 +583,20 @@
 :category:
 :END:
 :LOGBOOK:
-- State \"TODO\"       from              %U \\\
+- State \"TODO\"       from              %U
   %?
 :END:"
          :empty-lines 1
          :jump-to-captured t)
 
       ("t" "Work Task" entry (file jh/agenda-path-work)
-         "* TODO %^{Header text} %^g
+         "* TODO %^{Header text} %^g:task:
 :PROPERTIES:
 :repo:
 :category:
 :END:
 :LOGBOOK:
-- State \"TODO\"       from              %U \\\
+- State \"TODO\"       from              %U
   %?
 :END:"
          :empty-lines 1)
@@ -604,7 +604,7 @@
       ("l" "Personal Learning" entry (file jh/agenda-path-personal)
          "* TODO %^{Header text} %^g
 :LOGBOOK:
-- State \"TODO\"       from              %U \\\
+- State \"TODO\"       from              %U
   %?
 :END:"
          :empty-lines 1
@@ -615,138 +615,12 @@
   :defer t
   :after org)
 
-(defun extract-header-names (org-filepath)
-  "Return names of top-level org-headers in ORG-FILEPATH."
-  (defun remove-checkbox-stats (element)
-    "Remove [/] or [%] stats from name of ELEMENT"
-    (replace-regexp-in-string " \\[.*?\\]$" ""
-                              (org-element-property :raw-value element)))
-  ;; 'org-filepath' must exist and readable
-  (unless (file-readable-p org-filepath)
-    (error "Org file %s is not readable or does not exist." org-filepath))
-  (mapcar 'remove-checkbox-stats
-          (org-ql-select org-filepath
-            '(level 1)
-            :action 'element-with-markers)))
-
 (use-package org-super-agenda
   :defer t
   :after org
   :hook (org-agenda-mode . org-super-agenda-mode)
   :config
   (set-face-attribute 'org-super-agenda-header nil :weight 'bold))
-
-;; (setq org-agenda-custom-commands
-;;       '(;; Return org-headers containing children tasks (ie projects)
-;;         ("w" "Ongoing Work Projects"
-;;          ((todo "" ((org-agenda-overriding-header "Work Projects")
-;;                     (org-agenda-files '("~/agenda/work.org"))
-;;                     (org-super-agenda-groups
-;;                      '((:name none ;; Disble super group header
-;;                               :children t)
-;;                        (:discard (:anything t))))))))))
-
-;; (setq org-agenda-custom-commands
-;;       '(("s" "Project Summary View"
-;;          ((alltodo "" ((org-agenda-overriding-header "")
-;;                        (org-super-agenda-groups
-;;                         '((:name "MLPScore-Motor"
-;;                                  :tag "motor"
-;;                                  :auto-property "ProjectId"
-;;                                  :order 10)
-;;                           (:name "MLPScore-Home"
-;;                                  :tag "home"
-;;                                  :auto-property "ProjectId"
-;;                                  :order 12)
-;;                           (:name "AF-Robovisor"
-;;                                  :tag "robovisor"
-;;                                  :auto-property "ProjectId"
-;;                                  :order 14)
-;;                           (:name "MLP Emacs Config"
-;;                                  :tag "config"
-;;                                  :auto-property "ProjectId"
-;;                                  :order 13)
-;;                           (:name "Enrichments"
-;;                                  :tag "enrichments"
-;;                                  :auto-property "ProjectId"
-;;                                  :order 15)
-;;                           (:name "MLP-Docs"
-;;                                  :tag "mlpdocs"
-;;                                  :auto-property "ProjectId"
-;;                                  :order 30)))))))))
-
-;; (use-package org
-;;   :after consult
-;;   :bind (("C-c a" . org-agenda)
-;;          ("C-c A" . consult-org-agenda))
-;;   :custom
-;;   (org-agenda-files '("~/agenda/"))
-;;   (org-agenda-window-setup 'current-window "Open in same window as called")
-;;   (org-agenda-restore-windows-after-quit t "Keep window format after quit")
-;;   (org-agenda-block-separator 8411         "Separator character")
-;;   (org-use-fast-todo-selection t "Select todo keywords from menu")
-;;   (org-log-into-drawer t         "Collapse log entries into drawer under task")
-;;   (org-agenda-start-with-log-mode t)
-
-;;   ;; Only use tags to organize tasks
-;;   (org-agenda-hide-tags-regexp ".*")
-
-;;   ;; Disable state changing via S-left or S-right
-;;   (org-treat-S-cursor-todo-selection-as-state-change nil)
-
-;;   ;; Set span for agenda to be just daily.
-;;   (org-agenda-span 1          "Default: 10 days")
-;;   (org-agenda-start-day "+0d" "Default: -3d, before current date")
-
-;;   ;; Remove completed tasks from agenda views
-;;   (org-agenda-skip-timestamp-if-done t)
-;;   (org-agenda-skip-deadline-if-done t)
-;;   (org-agenda-skip-scheduled-if-deadline-is-shown t)
-;;   (org-agenda-skip-timestamp-if-deadline-is-shown t)
-
-;;   ;; Simplify time-grid agenda display
-;;   (org-agenda-current-time-string ""        "Remove agenda 'now...' indicator")
-;;   (org-agenda-time-grid '((daily) () "" "") "Remove empty hours from grid")
-
-;;   ;; TODO(t)    :: set fast-access key from agenda view
-;;   ;; TODO(t@)   :: record note with timestamp
-;;   ;; TODO(t@/!) :: record timestamp when leaving state
-;;   (org-todo-keywords '((sequence
-;;                         "TODO(t@/!)"      ;; Document task
-;;                         "ACTIVE(a@/!)"    ;; Actively working on task
-;;                         "WAITING(w@/!)"   ;; Waiting for event related to task
-;;                         "HOLD(h@/!)"      ;; Task on hold
-;;                         "|" "DONE(d!)" "CANCELLED(x@/!)")))
-
-;;   ;; Automatically assign tags to tasks based on state changes
-;;   (org-todo-state-tags-triggers
-;;    '(("TODO" ("START" . t))
-;;      ("ACTIVE" ("TO-START") ("ACTION" . t))
-;;      ("WAITING" ("TO-START") ("ACTION") ("WAITING" . t))
-;;      ("TODO" ("ACTION") ("WAITING") ("HOLD") ("CANCELLED"))
-;;      ("DONE" ("TO-START") ("ACTION") ("WAITING") ("HOLD") ("CANCELLED"))))
-
-;;   ;; ;; Restructure order of information displayed in agenda-view
-;;   ;; (org-agenda-prefix-format '((agenda . "  %?-2i %t ")
-;;   ;;                             (todo .   " %i %-12:c")
-;;   ;;                             (tags .   " %i %-12:c")
-;;   ;;                             (search . " %i %-12:c")))
-
-;;   ;; (org-agenda-category-icon-alist
-;;   ;;  '(("mlps-motor",
-;;   ;;     (list (nerd-icons-faicon "nf-fa-car")) nil nil :ascent center)
-;;   ;;    ("mlps-home" ,
-;;   ;;     (list (nerd-icons-sucicon "nf-custom-home")) nil nil :ascent center)
-;;   ;;    ("enrichments",
-;;   ;;     (list (nerd-icons-faicon "nf-fa-wand_magic")) nil nil :ascent center)
-;;   ;;    ("emacs",
-;;   ;;     (list (nerd-icons-sucicon "nf-custom-emacs")) nil nil :ascent center)
-;;   ;;    ("reading",
-;;   ;;     (list (nerd-icons-octicon "nf-oct-book")) nil nil :ascent center)
-;;   ;;    ("linux",
-;;   ;;     (list (nerd-icons-flicon "nf-linux-archlinux")) nil nil :ascent center)))
-
-;;   )
 
 (use-package magit
   :bind ("C-x g" . magit-status)
@@ -817,42 +691,5 @@ function."
     (message "Buffer is not a file")))
 
 (global-set-key (kbd "C-c L") 'create-file-link-from-current-buffer)
-
-;; (defun jh/format-input-str (input-string)
-;;   "Format INPUT-STRING.
-
-;; INPUT-STRING converted to downcase, stripped of leading/trailing
-;; whitespaces, and symbols/white-spaces replaced with -."
-
-;;   (let ((input-string (string-trim (downcase input-string))))
-;;     (if (string= input-string "")
-;;         (error "Input string cannot be empty")
-;;       (replace-regexp-in-string "[^[:alnum:]]\\| " "-" input-string))))
-
-(defun format-test (input)
-  "Format INPUT.
-
-If INPUT is a string, it's converted to lowercase, stripped of
-leading/trailing whitespaces, and symbols/white-spaces replaced
-with -. If INPUT is a list, each element is processed
-recursively. For other types of inputs, an error is returned."
-
-  (cond
-    ((stringp input)
-      (let ((formatted-input (string-trim (downcase input))))
-        (if (string= formatted-input "")
-            (error "Input string cannot be empty")
-          (replace-regexp-in-string "[^[:alnum:]]+" "-" formatted-input))))
-    ((listp input)
-      (mapcar #'format-test input))
-    (t
-      (error "Input must be a string or a list"))))
-
-;; Example usage:
-(format-test "mlp__emacs__config")
-(format-test '("mlp-docs" "af-robovisor" "ogi-products"))
-;; (format-test 42)
-
-;; (format-test 42)
 
 ;;; init.el ends here
