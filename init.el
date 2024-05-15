@@ -574,11 +574,10 @@
 :attendees:
 :purpose: %^{Purpose of meeting}
 :END:\n\n"
-         :empty-lines 1
-         :jump-to-captured t)
+         :empty-lines 1)
 
       ("p" "Work Project" entry (file jh/agenda-path-work)
-         "* TODO %^{Header text} %^g:project:
+         "* TODO %^{Header text} [/] %^g:project:
 :PROPERTIES:
 :repo:
 :category:
@@ -589,6 +588,18 @@
 :END:"
          :empty-lines 1
          :jump-to-captured t)
+
+      ("t" "Work Task" entry (file jh/agenda-path-work)
+         "* TODO %^{Header text} %^g
+:PROPERTIES:
+:repo:
+:category:
+:END:
+:LOGBOOK:
+- State \"TODO\"       from              %U \\\
+  %?
+:END:"
+         :empty-lines 1)
 
       ("l" "Personal Learning" entry (file jh/agenda-path-personal)
          "* TODO %^{Header text} %^g
