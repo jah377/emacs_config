@@ -953,13 +953,12 @@ given task. The state can depend on the type of task.
 
 #+begin_src emacs-lisp
 ;; @ to record timestamp; /! to record note
-(setq org-todo-keywords
-             '((sequence
-               "TODO(t@/!)"      ;; Initiate task
-               "ACTIVE(a@/!)"    ;; Task in progress
-               "WAITING(w@/!)"   ;; Wait for event related to task
-               "HOLD(h@/!)"      ;; Task on hold
-               "|" "DONE(d!)" "CANCELLED(x@/!)")))
+(setq org-todo-keywords '((sequence
+                           "TODO(t@/!)"      ;; Initiate task
+                           "ACTIVE(a@/!)"    ;; Task in progress
+                           "WAITING(w@/!)"   ;; Wait for event related to task
+                           "HOLD(h@/!)"      ;; Task on hold
+                           "|" "DONE(d!)" "CANCELLED(x@/!)")))
 #+end_src
 
 #+begin_src emacs-lisp
@@ -994,8 +993,9 @@ emojis to convey priority.
 
 *** Agenda Checkbox Statistics
 
-Tasks should be broken into sub-tasks, if possible.  Mentioned in [[*Agenda
-Approach][Agenda Approach]], sub-tasks will be organized in a checkbox
+Tasks should be broken into sub-tasks, if possible. Mentioned in [[*Agenda
+Approach][Agenda Approach]],
+sub-tasks will be organized in a checkbox
 list. Checkbox lists are created by inserting =[ ]= after a
 bullet. Subsequent checkbox entries can be created by calling
 ~M-S-RET~. Calling ~C-c C-c~ checks/un-checks the box at point.
@@ -1067,7 +1067,8 @@ property header.
 :attendees:
 :purpose: %^{Purpose of meeting}
 :END:\n\n"
-         :empty-lines 1)
+         :empty-lines 1
+         :kill-buffer)
 
       ("p" "Work Project" entry (file jh/agenda-path-work)
          "* TODO %^{Header text} [/] %^g:project:
@@ -1115,63 +1116,23 @@ property header.
 (use-package org-super-agenda
   :defer t
   :after org
-  :hook (org-agenda-mode . org-super-agenda-mode)
+  :hook ((org-agenda-mode org-mode) . org-super-agenda-mode)
+  :custom (org-super-agenda-header-prefix "❯ ")
   :config
   (set-face-attribute 'org-super-agenda-header nil :weight 'bold))
 #+end_src
 
-#+begin_src emacs-lisp :tangle no
-(org-ql-search (org-agenda-files)
-  '(and (tags "work")
-        (not (tags "meeting" "project"))
-        (not (done)))
-  :sort '(date priority todo)
-  :title "My Agenda View")
-#+end_src
-
-
-#+begin_src emacs-lisp :tangle no
+#+begin_src emacs-lisp
 (setq org-agenda-custom-commands
-      '(;; Return org-headers containing children tasks (ie projects)
-        ("w" "Ongoing Work Projects"
-         ((todo "" ((org-agenda-overriding-header "Work Projects")
-                    (org-agenda-files '("~/agenda/work.org"))
-                    (org-super-agenda-groups
-                     '((:name none ;; Disble super group header
-                              :children t)
-                       (:discard (:anything t))))))))))
-#+end_src
-
-
-#+begin_src emacs-lisp :tangle no
-;; (setq org-agenda-custom-commands
-;;       '(("s" "Project Summary View"
-;;          ((alltodo "" ((org-agenda-overriding-header "")
-;;                        (org-super-agenda-groups
-;;                         '((:name "MLPScore-Motor"
-;;                                  :tag "motor"
-;;                                  :auto-property "ProjectId"
-;;                                  :order 10)
-;;                           (:name "MLPScore-Home"
-;;                                  :tag "home"
-;;                                  :auto-property "ProjectId"
-;;                                  :order 12)
-;;                           (:name "AF-Robovisor"
-;;                                  :tag "robovisor"
-;;                                  :auto-property "ProjectId"
-;;                                  :order 14)
-;;                           (:name "MLP Emacs Config"
-;;                                  :tag "config"
-;;                                  :auto-property "ProjectId"
-;;                                  :order 13)
-;;                           (:name "Enrichments"
-;;                                  :tag "enrichments"
-;;                                  :auto-property "ProjectId"
-;;                                  :order 15)
-;;                           (:name "MLP-Docs"
-;;                                  :tag "mlpdocs"
-;;                                  :auto-property "ProjectId"
-;;                                  :order 30)))))))))
+      '(("p" "MLP: Project Planning View"
+         ((org-ql-block '(and (level 2)
+                              (tags "work")
+                              (parent (not (todo "DONE"))))
+                        ((org-super-agenda-groups '((:auto-parent t)))))))
+        ("t" "MLP: All Existing Tasks"
+         ((alltodo "" ((org-agenda-overriding-header "MLP: All Uncompleted Tasks")
+                       (org-super-agenda-groups '((:auto-parent t)
+                                                  (:discard (:tag "project"))))))))))
 #+end_src
 
 * Version Control

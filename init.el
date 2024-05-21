@@ -519,13 +519,12 @@
 ;; (setq org-agenda-start-with-log-mode t)
 
 ;; @ to record timestamp; /! to record note
-(setq org-todo-keywords
-             '((sequence
-               "TODO(t@/!)"      ;; Initiate task
-               "ACTIVE(a@/!)"    ;; Task in progress
-               "WAITING(w@/!)"   ;; Wait for event related to task
-               "HOLD(h@/!)"      ;; Task on hold
-               "|" "DONE(d!)" "CANCELLED(x@/!)")))
+(setq org-todo-keywords '((sequence
+                           "TODO(t@/!)"      ;; Initiate task
+                           "ACTIVE(a@/!)"    ;; Task in progress
+                           "WAITING(w@/!)"   ;; Wait for event related to task
+                           "HOLD(h@/!)"      ;; Task on hold
+                           "|" "DONE(d!)" "CANCELLED(x@/!)")))
 
 ;; By default, 'org-todo' cycles through todo keywords in the sequence
 ;; defined above. The following changes the behavior to intead open a
@@ -574,7 +573,8 @@
 :attendees:
 :purpose: %^{Purpose of meeting}
 :END:\n\n"
-         :empty-lines 1)
+         :empty-lines 1
+         :kill-buffer)
 
       ("p" "Work Project" entry (file jh/agenda-path-work)
          "* TODO %^{Header text} [/] %^g:project:
@@ -618,9 +618,21 @@
 (use-package org-super-agenda
   :defer t
   :after org
-  :hook (org-agenda-mode . org-super-agenda-mode)
+  :hook ((org-agenda-mode org-mode) . org-super-agenda-mode)
+  :custom (org-super-agenda-header-prefix "❯ ")
   :config
   (set-face-attribute 'org-super-agenda-header nil :weight 'bold))
+
+(setq org-agenda-custom-commands
+      '(("p" "MLP: Project Planning View"
+         ((org-ql-block '(and (level 2)
+                              (tags "work")
+                              (parent (not (todo "DONE"))))
+                        ((org-super-agenda-groups '((:auto-parent t)))))))
+        ("t" "MLP: All Existing Tasks"
+         ((alltodo "" ((org-agenda-overriding-header "MLP: All Uncompleted Tasks")
+                       (org-super-agenda-groups '((:auto-parent t)
+                                                  (:discard (:tag "project"))))))))))
 
 (use-package magit
   :bind ("C-x g" . magit-status)
