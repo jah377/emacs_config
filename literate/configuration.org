@@ -27,8 +27,8 @@ which requires loading =org= before starting Emacs (slow).
 ** Early-Init.el
 
 The =early-init.el= file, introduced with Emacs27, is the first file
-that Emacs reads when starting up (before =init.el=). In principal,
-the early initialization file should set-up a few basic things before
+that Emacs reads when starting up (before =init.el=). In principal, the
+early initialization file should set-up a few basic things before
 Emacs produces the initial frame, and should not depend on any
 packages. Here, we would like to address the following:
 
@@ -88,8 +88,8 @@ org-file. To do so, we address the following:
 
 + Package Resources :: Emacs packages are installed from hosted
   archives. Here, we define which archives and specify the priority
-  when downloading packages. The =use-package= resource is now
-  included with Emacs29.
+  when downloading packages. The =use-package= resource is now included
+  with Emacs29.
 
 + Garbage Collection :: The "Garbage Collection Magic Hack" package
   [[[https://github.com/emacsmirror/gcmh][github/gcmh]]] is employed by =Doom-Emacs= to enforce a "sneaky" GC
@@ -97,17 +97,17 @@ org-file. To do so, we address the following:
   times. Here, add hooks to reset these values after Emacs
   initialization.
 
-+ Load Config File :: Must call =org-babel-tangle= to generate
-  =config.el= from this narrative.
++ Load Config File :: Must call =org-babel-tangle= to generate =config.el=
+  from this narrative.
 
 + Tidy Emacs Directory :: The default paths used to store
   configuration files and persistent data are not consistent across
   Emacs packages. Some packages put these files directly in
-  ~user-emacs-directory~ or ~$HOME~. The =no-littering= package fixes
-  this by changing the values of path variables. Related, Emacs
-  packages may automatically generate customization, which are then
-  stored at the bottom of the =init.el= config file. To prevent the
-  additional clutter, we move these customizations to a separate
+  ~user-emacs-directory~ or ~$HOME~. The =no-littering= package fixes this
+  by changing the values of path variables. Related, Emacs packages
+  may automatically generate customization, which are then stored at
+  the bottom of the =init.el= config file. To prevent the additional
+  clutter, we move these customizations to a separate
   =custom-settings.el= file.
 
 *N.B.* The remaining src-blocks in this narrative also tangle to the
@@ -1225,7 +1225,7 @@ snippets.
 ** Create :file Link to Current Buffer
 
 #+begin_src emacs-lisp
-(defun create-file-link-from-current-buffer ()
+ (defun create-file-link-from-current-buffer ()
   "Build [[:file file-path][file-name]] org-link from current
 buffer.
 
@@ -1243,6 +1243,7 @@ function."
 
 (global-set-key (kbd "C-c L") 'create-file-link-from-current-buffer)
 #+end_src
+
 * Conclusion
 
 Ta-dah!
